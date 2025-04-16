@@ -18,16 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.helloworld.ui.theme.HelloWorldTheme
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-
-
-
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +44,6 @@ fun DietTrackingScreen(navController: NavController) {
             TopAppBar(title = { Text("Diet & Nutrition Tracking") })
         },
         bottomBar = {
-            // Only show the BottomNavigationBar on the home screen
             BottomNavigationBar()
         }
     ) { padding ->
@@ -94,6 +83,9 @@ fun FoodLoggingScreen(navController: NavController) {
                     }
                 }
             )
+        },
+        bottomBar = {
+            BottomNavigationBar()
         }
     ) { padding ->
         Column(
@@ -123,6 +115,9 @@ fun NutritionalAnalysisScreen(navController: NavController) {
                     }
                 }
             )
+        },
+        bottomBar = {
+            BottomNavigationBar()
         }
     ) { padding ->
         Column(
@@ -141,45 +136,24 @@ fun NutritionalAnalysisScreen(navController: NavController) {
 
 @Composable
 fun BottomNavigationBar() {
-    val items = listOf(
-        "Home",
-        "Reminder",
-        "Track",
-        "Plans",
-        "Diet"
-    )
-
-    val colors = Color(0xFF64B5F6)
-
-    val textColors = Color.Black
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        items.forEachIndexed { index, label ->
-            Button(
-                onClick = { /*  */ },
-                colors = ButtonDefaults.buttonColors(containerColor = colors),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 0.dp)
-                    .height(80.dp)
-            ) {
-                Text(
-                    text = label,
-                    color = textColors,
-                    style = TextStyle(fontSize = 9.sp, fontWeight = FontWeight.Normal),
-                    maxLines = 1
-                )
-            }
-        }
+    NavigationBar {
+        NavigationBarItem(
+            icon = {  },
+            label = { Text("Dashboard") },
+            selected = false,
+            onClick = { /* No action */ }
+        )
+        NavigationBarItem(
+            icon = { },
+            label = { Text("About Us") },
+            selected = false,
+            onClick = { /* No action */ }
+        )
+        NavigationBarItem(
+            icon = {  },
+            label = { Text("Logout") },
+            selected = false,
+            onClick = { /* No action */ }
+        )
     }
 }
-
-
-
-
-
