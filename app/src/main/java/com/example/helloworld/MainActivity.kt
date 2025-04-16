@@ -83,9 +83,6 @@ fun FoodLoggingScreen(navController: NavController) {
                     }
                 }
             )
-        },
-        bottomBar = {
-            BottomNavigationBar()
         }
     ) { padding ->
         Column(
@@ -115,10 +112,8 @@ fun NutritionalAnalysisScreen(navController: NavController) {
                     }
                 }
             )
-        },
-        bottomBar = {
-            BottomNavigationBar()
         }
+
     ) { padding ->
         Column(
             modifier = Modifier
@@ -143,12 +138,7 @@ fun BottomNavigationBar() {
             selected = false,
             onClick = { /* No action */ }
         )
-        NavigationBarItem(
-            icon = { },
-            label = { Text("About Us") },
-            selected = false,
-            onClick = { /* No action */ }
-        )
+
         NavigationBarItem(
             icon = {  },
             label = { Text("Logout") },
