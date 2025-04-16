@@ -18,6 +18,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.helloworld.ui.theme.HelloWorldTheme
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ExitToApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,14 +135,14 @@ fun NutritionalAnalysisScreen(navController: NavController) {
 fun BottomNavigationBar() {
     NavigationBar {
         NavigationBarItem(
-            icon = {  },
+            icon = {Icon(Icons.Default.Home, contentDescription = "Dashboard")  },
             label = { Text("Dashboard") },
             selected = false,
             onClick = { /* No action */ }
         )
 
         NavigationBarItem(
-            icon = {  },
+            icon = {Icon(Icons.Filled.ExitToApp, contentDescription = "Logout")  },
             label = { Text("Logout") },
             selected = false,
             onClick = { /* No action */ }
