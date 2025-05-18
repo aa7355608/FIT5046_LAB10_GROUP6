@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "734105049804",
+    "project_id": "healthreminderapp-b7ad3",
+    "storage_bucket": "healthreminderapp-b7ad3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734105049804:android:f4b43d72207544a2574069",
+        "android_client_info": {
+          "package_name": "com.example.healthreminderapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734105049804-melvo484pbmcqcl129u9khm7s0ktd7ge.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHLmrcvYJgZNLmmQFZhTBZcrrEKHak-ss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734105049804-melvo484pbmcqcl129u9khm7s0ktd7ge.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
