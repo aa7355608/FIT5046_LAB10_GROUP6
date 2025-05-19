@@ -40,7 +40,7 @@ fun LoginScreen(
     var isPasswordValid by remember { mutableStateOf(true) }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // 是否可以触发邮箱/密码登录
+    // Can email/password login be triggered?
     val canLogin = remember(email, password, isEmailValid, isPasswordValid, isLoading) {
         email.isNotBlank() &&
                 password.isNotBlank() &&
@@ -49,7 +49,7 @@ fun LoginScreen(
                 !isLoading
     }
 
-    // Google Sign-In 配置（不变）
+    // Google Sign-In configuration
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestEmail()
         .build()
@@ -61,16 +61,16 @@ fun LoginScreen(
             try {
                 val account = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                     .getResult(ApiException::class.java)!!
-                Toast.makeText(context, "Google 登录成功：${account.email}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Google login successful：${account.email}", Toast.LENGTH_SHORT).show()
                 onLoginSuccess()
             } catch (e: ApiException) {
                 coroutineScope.launch {
-                    snackBarHostState.showSnackbar("Google 登录失败：${e.statusCode}")
+                    snackBarHostState.showSnackbar("Google login failed：${e.statusCode}")
                 }
             }
         } else {
             coroutineScope.launch {
-                snackBarHostState.showSnackbar("Google 登录被取消")
+                snackBarHostState.showSnackbar("Google login has been cancelled")
             }
         }
     }
@@ -90,7 +90,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // Email 输入框
+            // Email input box
             OutlinedTextField(
                 value = email,
                 onValueChange = {
@@ -103,12 +103,12 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             if (!isEmailValid) {
-                Text("请输入正确的邮箱地址", color = MaterialTheme.colorScheme.error)
+                Text("Please enter the correct email address", color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(Modifier.height(16.dp))
 
-            // Password 输入框
+            // Password input box
             OutlinedTextField(
                 value = password,
                 onValueChange = {
@@ -134,18 +134,18 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             if (!isPasswordValid) {
-                Text("密码至少 6 位", color = MaterialTheme.colorScheme.error)
+                Text("The password should be at least 6 characters long", color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(Modifier.height(24.dp))
 
-            // 邮箱/密码登录按钮
+            // Email/password login button
             Button(
                 onClick = {
-                    // 双重校验，防止意外传空值
+                    // Double verification to prevent accidental transmission of null values
                     if (!canLogin) {
                         coroutineScope.launch {
-                            snackBarHostState.showSnackbar("请填写有效的邮箱和至少6位密码")
+                            snackBarHostState.showSnackbar("Please fill in a valid email address and a password of at least 6 digits")
                         }
                         return@Button
                     }
@@ -158,7 +158,7 @@ fun LoginScreen(
                         .addOnFailureListener { e ->
                             isLoading = false
                             coroutineScope.launch {
-                                snackBarHostState.showSnackbar("登录失败：${e.localizedMessage}")
+                                snackBarHostState.showSnackbar("Login failed：${e.localizedMessage}")
                             }
                         }
                 },
@@ -183,7 +183,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // Google 登录按钮
+            // Google login button
             Button(
                 onClick = { googleLauncher.launch(googleClient.signInIntent) },
                 modifier = Modifier.fillMaxWidth(),

@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
 
-/** 所有与云端打交道的集中入口 */
+/** All centralized entry points for dealing with the cloud */
 object HealthRepository {
 
     private val db by lazy { FirebaseFirestore.getInstance() }
@@ -16,7 +16,7 @@ object HealthRepository {
 
     /* ---------- Meals ---------- */
 
-    /** Recommended-Meals 列表；返回 [name] 字段 */
+    /** Recommended-Meals list; Return the [name] field */
     suspend fun loadMeals(): List<String> = withContext(Dispatchers.IO) {
         return@withContext try {
             db.collection("meals")
@@ -27,13 +27,13 @@ object HealthRepository {
                 .documents
                 .mapNotNull { it.getString("name") }
         } catch (e: Exception) {
-            emptyList()   // 网络失败就返回空，不让 App 崩溃
+            emptyList()   // If the network fails, it will return to null to prevent the App from crashing
         }
     }
 
     /* ---------- Food-Rankings ---------- */
 
-    /** 食物排行：返回「名称 + Emoji」列表 */
+    /** Food ranking: Return the list of "Name + Emoji" */
     suspend fun loadFoodRankings(): List<String> = withContext(Dispatchers.IO) {
         return@withContext try {
             db.collection("foodRankings")
@@ -50,7 +50,7 @@ object HealthRepository {
 
     /* ---------- Weight Tracker ---------- */
 
-    /** 读取当前用户最近 30 次记录（kg） */
+    /** Read the current user's most recent 30 records (kg) */
     suspend fun loadWeights(): List<Double> = withContext(Dispatchers.IO) {
         val uid = auth.currentUser?.uid ?: return@withContext emptyList()
         return@withContext try {
@@ -67,7 +67,7 @@ object HealthRepository {
         }
     }
 
-    /** 保存一条体重；写成功后静默返回 */
+    /** Save a weight statement; After writing successfully, return silently */
     suspend fun saveWeight(value: Double) = withContext(Dispatchers.IO) {
         val uid = auth.currentUser?.uid ?: return@withContext
         val data = hashMapOf(

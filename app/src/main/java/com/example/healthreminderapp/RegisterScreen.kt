@@ -62,7 +62,7 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             if (!isEmailValid) {
-                Text("请输入正确的邮箱地址", color = MaterialTheme.colorScheme.error)
+                Text("Please enter the correct email address", color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -89,7 +89,7 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             if (!isPasswordValid) {
-                Text("密码至少 6 位", color = MaterialTheme.colorScheme.error)
+                Text("The password should be at least 6 characters long", color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -106,7 +106,7 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             if (!passwordsMatch) {
-                Text("两次输入的密码不一致", color = MaterialTheme.colorScheme.error)
+                Text("The passwords entered twice are not the same", color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -117,13 +117,13 @@ fun RegisterScreen(
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnSuccessListener {
                             isLoading = false
-                            Toast.makeText(context, "注册成功", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()
                             onRegisterSuccess()
                         }
                         .addOnFailureListener { e ->
                             isLoading = false
                             coroutineScope.launch {
-                                snackBarHostState.showSnackbar("注册失败：${e.localizedMessage}")
+                                snackBarHostState.showSnackbar("Registration failed：${e.localizedMessage}")
                             }
                         }
                 },

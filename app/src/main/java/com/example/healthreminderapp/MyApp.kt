@@ -7,7 +7,7 @@ import com.google.firebase.ktx.initialize
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        // 初始化 Firebase
+        // Firebase Initialize
         Firebase.initialize(this)
     }
 }

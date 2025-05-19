@@ -16,7 +16,7 @@ fun BottomNavigationScreen() {
     var selectedTab by remember { mutableStateOf(0) }
 
     Scaffold(
-        /* —— 直接去掉顶栏 —— */
+        /* —— remove the top bar directly —— */
         /* topBar = { TopAppBar(title = { Text("Health Reminder") }) }, */
 
         bottomBar = {

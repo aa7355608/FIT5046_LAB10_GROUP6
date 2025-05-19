@@ -12,14 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-/* 数据模型 */
+/* Data model */
 private data class FoodRank(
     val rank:  Int,
     val name:  String,
     val score: Int        // Health score 0–100
 )
 
-/* 20 条静态排行榜 */
+/* 20 static ranking lists */
 private val rankings = listOf(
     FoodRank(1, "Steamed Broccoli",          99),
     FoodRank(2, "Baked Salmon",              97),
@@ -71,7 +71,7 @@ private fun RankCard(item: FoodRank) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            /* 星型图标 + 排名数字 */
+            /* Star icon + ranking number */
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(48.dp)
@@ -84,7 +84,7 @@ private fun RankCard(item: FoodRank) {
                 )
             }
 
-            /* 食品名称与得分 */
+            /* Food names and scores */
             Column {
                 Text(
                     item.name,

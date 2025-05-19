@@ -14,14 +14,14 @@ import java.util.Locale
 
 @Composable
 fun WeightTestScreen() {
-    /* ---- 状态 ---- */
+    /* ---- Status ---- */
     var input by remember { mutableStateOf("") }
     var submitting by remember { mutableStateOf(false) }
     var weightRecords by remember { mutableStateOf<List<Double>>(emptyList()) }
     val scope = rememberCoroutineScope()
     val snack = remember { SnackbarHostState() }
 
-    /* 首次加载历史记录 */
+    /* Load the history record for the first time */
     LaunchedEffect(Unit) {
         weightRecords = HealthRepository.loadWeights()
     }
@@ -37,11 +37,11 @@ fun WeightTestScreen() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            /* ------ 输入区（不依赖 KeyboardOptions） ------ */
+            /* ------ Input area (not dependent on KeyboardOptions) ------ */
             OutlinedTextField(
                 value = input,
                 onValueChange = { text ->
-                    // 仅允许数字和小数点
+                    // Only numbers and decimal points are allowed
                     if (text.all { it.isDigit() || it == '.' }) input = text
                 },
                 label = { Text("Current Weight (kg)") },
@@ -49,7 +49,7 @@ fun WeightTestScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            /* 保存按钮 */
+            /* Save button */
             Button(
                 onClick = {
                     val value = input.toDoubleOrNull()
@@ -62,7 +62,7 @@ fun WeightTestScreen() {
                             input = ""
                         }
                     } else {
-                        scope.launch { snack.showSnackbar("请输入合理体重") }
+                        scope.launch { snack.showSnackbar("Please enter a reasonable weight") }
                     }
                 },
                 enabled = !submitting,
@@ -80,7 +80,7 @@ fun WeightTestScreen() {
 
             Divider(modifier = Modifier.padding(top = 8.dp))
 
-            /* ------ 历史列表 ------ */
+            /* ------ Historical list ------ */
             Text("History", style = MaterialTheme.typography.titleMedium)
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),

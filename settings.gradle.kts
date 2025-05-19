@@ -11,7 +11,7 @@ pluginManagement {
         gradlePluginPortal()
     }
     plugins {
-        // 如果你不是通过 libs.versions.toml 管理这些插件版本，也可以在这里声明它们的版本
+        // If you don't manage these plugin versions through libs.versions.toml, you can also declare their versions here
         id("com.android.application")         version "7.4.2" apply false
         id("org.jetbrains.kotlin.android")    version "1.8.21" apply false
         id("com.google.gms.google-services")  version "4.3.15" apply false

@@ -1,12 +1,12 @@
 plugins {
-    // 如果你在 settings.gradle.kts 中启用了 versionCatalog（libs.versions.toml）：
+    // If you have enabled versionCatalog (libs.versions.toml) in settings.gradle.kts：
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)    // 若 toml 中未定义可删除此行
+    alias(libs.plugins.kotlin.compose)    // If it is not defined in toml, this line can be deleted
 
-    // Firebase Google-Services 插件
+    // Firebase Google-Services
     id("com.google.gms.google-services")
-    // 如果不使用 versionCatalog，改为：
+    // If versionCatalog is not used, change it to:
     // id("com.android.application")
     // id("org.jetbrains.kotlin.android")
     // id("org.jetbrains.kotlin.plugin.compose")
@@ -50,7 +50,6 @@ android {
         compose = true
     }
     composeOptions {
-        // 请与项目中使用的 Compose Compiler 版本保持一致
         kotlinCompilerExtensionVersion = "1.4.7"
     }
 }
@@ -63,14 +62,14 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     /* ======== Jetpack Compose ======== */
-    // 使用 BOM 统一管理 Compose 各模块版本
+    // Use BOM to uniformly manage the versions of each Compose module
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
 
-    // 核心 UI
+    // Core UI
     implementation("androidx.compose.ui:ui")
-    // 文本输入／文本布局 API (KeyboardOptions/KeyboardType)
+    // Text input/text layout API (KeyboardOptions/KeyboardType)
     implementation("androidx.compose.ui:ui-text")
-    // 布局、LazyList、手势等 Foundation
+    // Foundation for layout, LazyList, gestures, etc
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.foundation:foundation-layout")
     // Material3
@@ -81,17 +80,17 @@ dependencies {
     // Navigation for Compose
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    /* ======== AndroidX 基础 ======== */
+    /* ======== AndroidX Base ======== */
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.2")
 
-    /* ======== 预览 & 调试 ======== */
+    /* ======== Preview & Debugging ======== */
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    /* ======== 测试 ======== */
+    /* ======== Testing ======== */
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
