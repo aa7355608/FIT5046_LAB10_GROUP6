@@ -24,11 +24,11 @@ class MainActivity : ComponentActivity() {
                         onRegisterSuccess  = { rootNav.navigate("login") { popUpTo("register") { inclusive = true } } }
                     )
                 }
-                // 进入“主页”，切换到底部导航
+                // Enter the "Home Page" and switch to the bottom navigation
                 composable("main") {
                     BottomNavigationScreen()
                 }
-                // （可选）如果你还想全局再开个独立 form/report/settings
+                // (Optional) If you still want to open a separate form/report/settings globally
                 composable("form")   { FormScreen(rootNav)   }
                 composable("report") { ReportScreen(rootNav) }
                 composable("settings"){ SettingsScreen(rootNav) }
