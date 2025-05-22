@@ -3,15 +3,13 @@ package com.example.healthreminderapp
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthreminderapp.api.ApiClient
-import com.example.healthreminderapp.api.RemoteReminderSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ReminderSettingsViewModel : ViewModel() {
 
-    // 状态：供 Compose 组件使用
+
     private val _waterGoal = MutableStateFlow("2000")
     val waterGoal: StateFlow<String> = _waterGoal
 
@@ -49,23 +47,6 @@ class ReminderSettingsViewModel : ViewModel() {
                     time = it.exerciseTime,
                     delay = it.delayIfRaining
                 )
-            }
-        }
-    }
-
-    // 上传设置到远程服务器（FormScreen 保存时调用）
-    fun uploadToServer() {
-        viewModelScope.launch {
-            try {
-                val data = RemoteReminderSettings(
-                    waterGoal = waterGoal.value,
-                    waterInterval = waterInterval.value,
-                    exerciseTime = exerciseTime.value,
-                    delayIfRaining = delayIfRaining.value
-                )
-                ApiClient.api.uploadSettings(data)
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
