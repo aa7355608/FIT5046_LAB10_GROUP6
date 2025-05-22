@@ -9,11 +9,16 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 // Google Maps Compose
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -29,14 +34,13 @@ import okhttp3.Request
 // Math for polyline decoding
 import kotlin.math.*
 import kotlinx.coroutines.*
-
+import java.net.URLEncoder
 
 @Composable
 fun RunningLogScreen() {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // SensorManager and accelerometer setup
     val sensorManager = remember {
         context.getSystemService(SensorManager::class.java)
     }
@@ -44,22 +48,19 @@ fun RunningLogScreen() {
         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     }
 
-    // State to indicate if motion is detected
     var isMoving by remember { mutableStateOf(false) }
-
-    // Start and end positions selected by user
     var startLocation by remember { mutableStateOf<LatLng?>(null) }
     var endLocation by remember { mutableStateOf<LatLng?>(null) }
     var polylinePoints by remember { mutableStateOf<List<LatLng>>(emptyList()) }
     var distanceText by remember { mutableStateOf("--") }
     var durationText by remember { mutableStateOf("--") }
+    var energyText by remember { mutableStateOf("--") }
+    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
-    // Initial camera position
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(-37.9, 145.05), 12f)
     }
 
-    // Register accelerometer listener
     DisposableEffect(Unit) {
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent?) {
@@ -70,8 +71,6 @@ fun RunningLogScreen() {
                     val magnitude = sqrt(x * x + y * y + z * z)
                     if (magnitude > 15f) {
                         isMoving = true
-
-                        // Start the coroutine delay to clear the motion state
                         CoroutineScope(Dispatchers.Main).launch {
                             delay(3000)
                             isMoving = false
@@ -89,15 +88,46 @@ fun RunningLogScreen() {
         Text("Running Log & Analysis", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(24.dp))
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Start\n${startLocation?.let { formatLatLng(it) } ?: "--"}")
-            Text("End\n${endLocation?.let { formatLatLng(it) } ?: "--"}")
-            Text("Distance\n$distanceText")
-            Text("Duration\n$durationText")
+        Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Start Location:", style = MaterialTheme.typography.labelMedium)
+                Text(startLocation?.let { formatLatLng(it) } ?: "--", fontSize = 16.sp)
+                Text("End Location:", style = MaterialTheme.typography.labelMedium)
+                Text(endLocation?.let { formatLatLng(it) } ?: "--", fontSize = 16.sp)
+                Text("Distance:", style = MaterialTheme.typography.labelMedium)
+                Text(distanceText, fontSize = 16.sp)
+                Text("Duration:", style = MaterialTheme.typography.labelMedium)
+                Text(durationText, fontSize = 16.sp)
+                Text("Energy Burned: $energyText kcal", fontSize = 16.sp)
+                Text("Motion Detected: ${if (isMoving) "Yes" else "No"}", fontSize = 16.sp)
+            }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search location") },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Motion Detected: ${if (isMoving) "Yes" else "No"}", style = MaterialTheme.typography.bodyMedium)
+        Button(onClick = {
+            coroutineScope.launch {
+                val location = geocodePlace(searchQuery.text)
+                location?.let {
+                    cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(it, 15f))
+                }
+            }
+        }) {
+            Text("Search")
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         GoogleMap(
@@ -112,13 +142,22 @@ fun RunningLogScreen() {
                     polylinePoints = emptyList()
                     distanceText = "--"
                     durationText = "--"
+                    energyText = "--"
                 } else if (endLocation == null) {
                     endLocation = latLng
+
                     coroutineScope.launch {
                         val result = fetchRouteFromGoogle(startLocation!!, endLocation!!)
                         polylinePoints = result.polylinePoints
                         distanceText = result.distanceText
                         durationText = result.durationText
+
+                        val distanceKm = extractKm(result.distanceText)
+                        val timeMin = extractMinutes(result.durationText)
+                        val kcal = estimateEnergyBurn(distanceKm, timeMin)
+                        energyText = "%.1f".format(kcal)
+
+
                     }
                 } else {
                     startLocation = latLng
@@ -126,6 +165,7 @@ fun RunningLogScreen() {
                     polylinePoints = emptyList()
                     distanceText = "--"
                     durationText = "--"
+                    energyText = "--"
                 }
             }
         ) {
@@ -141,13 +181,60 @@ fun RunningLogScreen() {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        Text("Tap two locations on the map to fetch a real path.", style = MaterialTheme.typography.bodySmall)
+        Text(
+            "Tap two locations on the map to fetch a real path.",
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+suspend fun geocodePlace(place: String): LatLng? {
+    return withContext(Dispatchers.IO) {
+        try {
+            val apiKey = "AIzaSyAgTkkfpmndt9eqvzFf12kq4c6QI1GXkQk"
+            val encodedPlace = URLEncoder.encode(place, "UTF-8")
+            val url = "https://maps.googleapis.com/maps/api/geocode/json?address=$encodedPlace&key=$apiKey"
+            val request = Request.Builder().url(url).build()
+            val client = OkHttpClient()
+            val response = client.newCall(request).execute()
+            val json = response.body?.string() ?: return@withContext null
+            val root = Json.parseToJsonElement(json).jsonObject
+            val results = root["results"]?.jsonArray ?: return@withContext null
+            val location = results.firstOrNull()?.jsonObject
+                ?.get("geometry")?.jsonObject
+                ?.get("location")?.jsonObject
+            val lat = location?.get("lat")?.jsonPrimitive?.doubleOrNull
+            val lng = location?.get("lng")?.jsonPrimitive?.doubleOrNull
+            if (lat != null && lng != null) LatLng(lat, lng) else null
+        } catch (e: Exception) {
+            Log.e("Geocode", "Error", e)
+            null
+        }
     }
 }
 
 fun formatLatLng(latLng: LatLng): String {
     return "%.3f, %.3f".format(latLng.latitude, latLng.longitude)
 }
+
+fun estimateEnergyBurn(distanceKm: Double, timeMin: Int): Double {
+    val weightKg = 70  // you can later make this dynamic
+    val speedKmh = distanceKm / (timeMin / 60.0)
+    val met = if (speedKmh < 6) 3.5 else 7.0
+    return met * weightKg * (timeMin / 60.0)
+}
+
+fun extractKm(text: String): Double {
+    return text.replace("km", "").trim().toDoubleOrNull() ?: 0.0
+}
+
+fun extractMinutes(text: String): Int {
+    return text.replace("mins", "").replace("min", "").trim().toIntOrNull() ?: 0
+}
+
+// Assume fetchRouteFromGoogle and decodePolyline already implemented elsewhere
 
 data class RouteResult(
     val polylinePoints: List<LatLng>,

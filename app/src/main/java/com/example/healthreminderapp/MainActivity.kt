@@ -61,9 +61,10 @@ class MainActivity : ComponentActivity() {
                         FormScreen(navController = rootNav, viewModel = settingsViewModel)
                     }
 
-                    composable("report") {
-                        ReportScreen(navController = rootNav)
+                    composable("weather") {
+                        WeatherScreen()
                     }
+
 
                     composable("settings") {
                         SettingsScreen(navController = rootNav)
