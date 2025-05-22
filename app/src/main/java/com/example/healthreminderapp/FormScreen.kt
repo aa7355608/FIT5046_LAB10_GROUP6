@@ -1,101 +1,149 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.healthreminderapp
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import java.text.SimpleDateFormat
-import java.util.*
+import kotlinx.coroutines.launch
 
 @Composable
-fun FormScreen(navController: NavHostController) {
-    var userName by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf("") }
-    var dropdownExpanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("Option A") }
-    val options = listOf("Option A", "Option B", "Option C")
+fun FormScreen(
+    navController: NavHostController,
+    viewModel: ReminderSettingsViewModel
+) {
+    // Shared ViewModel 状态
+    var waterGoal by remember { mutableStateOf(viewModel.waterGoal.value) }
+    var waterInterval by remember { mutableStateOf(viewModel.waterInterval.value) }
+    var exerciseTime by remember { mutableStateOf(viewModel.exerciseTime.value) }
+    var delayIfRaining by remember { mutableStateOf(viewModel.delayIfRaining.value) }
 
-    var userList by remember { mutableStateOf(listOf<String>()) }
+    // Room Database
+    val context = LocalContext.current
+    val db = remember { AppDatabase.getDatabase(context) }
+    val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier.padding(24.dp)) {
-        Text("Form Screen", style = MaterialTheme.typography.titleLarge)
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(24.dp)) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Text("Edit Reminder Settings", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // Water Goal
         OutlinedTextField(
-            value = userName,
-            onValueChange = { userName = it },
-            label = { Text("Your Name") },
+            value = waterGoal,
+            onValueChange = { waterGoal = it },
+            label = { Text("Daily Water Goal (ml)") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            selectedDate = dateFormat.format(Date())
-        }) {
-            Text("Pick Date")
-        }
-        if (selectedDate.isNotEmpty()) {
-            Text("Selected Date: $selectedDate")
-        }
+        // Water Interval Dropdown
+        IntervalDropdown(
+            selectedOption = waterInterval,
+            onOptionSelected = { waterInterval = it }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Exercise Time
+        OutlinedTextField(
+            value = exerciseTime,
+            onValueChange = { exerciseTime = it },
+            label = { Text("Exercise Time (HH:mm)") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Box {
-            OutlinedTextField(
-                value = selectedOption,
-                onValueChange = {},
-                label = { Text("Select Option") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
-            DropdownMenu(
-                expanded = dropdownExpanded,
-                onDismissRequest = { dropdownExpanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            selectedOption = option
-                            dropdownExpanded = false
-                        }
+        // Delay If Raining Switch
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Delay if raining", modifier = Modifier.weight(1f))
+            Switch(checked = delayIfRaining, onCheckedChange = { delayIfRaining = it })
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Save Button
+        Button(
+            onClick = {
+                // Update ViewModel
+                viewModel.updateSettings(
+                    goal = waterGoal,
+                    interval = waterInterval,
+                    time = exerciseTime,
+                    delay = delayIfRaining
+                )
+
+                // Save to Room
+                scope.launch {
+                    db.reminderSettingsDao().insert(
+                        ReminderSettings(
+                            waterGoal = waterGoal,
+                            waterInterval = waterInterval,
+                            exerciseTime = exerciseTime,
+                            delayIfRaining = delayIfRaining
+                        )
                     )
                 }
+
+                // Back to previous screen
+                navController.popBackStack()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Save Settings")
+        }
+    }
+}
+
+@Composable
+fun IntervalDropdown(
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    val options = listOf("1 hour", "2 hours", "3 hours")
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = selectedOption,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Water Reminder Interval") },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    }
+                )
             }
-            Spacer(
-                modifier = Modifier
-                    .matchParentSize()
-                    .padding(horizontal = 8.dp)
-                    .clickable { dropdownExpanded = !dropdownExpanded }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            if (userName.isNotBlank()) {
-                userList = userList + "$userName | $selectedDate | $selectedOption"
-            }
-        }) {
-            Text("Add Entry")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        userList.forEach {
-            Text(it)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Back to Home")
         }
     }
 }
