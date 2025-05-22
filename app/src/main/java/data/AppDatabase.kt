@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 @Database(entities = [ReminderSettings::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun reminderSettingsDao(): ReminderSettingsDao
+
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
@@ -22,4 +23,3 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
-
