@@ -1,4 +1,6 @@
 plugins {
+    id("kotlin-kapt")
+
     // If you have enabled versionCatalog (libs.versions.toml) in settings.gradle.kts：
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -65,6 +67,11 @@ dependencies {
     // Use BOM to uniformly manage the versions of each Compose module
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
 
+    // ========== Room Database ==========
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
     // Core UI
     implementation("androidx.compose.ui:ui")
     // Text input/text layout API (KeyboardOptions/KeyboardType)
@@ -103,6 +110,13 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    // Retrofit + Kotlinx Serialization
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-
+    // Retrofit & JSON
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
