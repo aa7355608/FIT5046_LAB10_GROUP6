@@ -15,6 +15,7 @@ import com.example.healthreminderapp.WorkoutFormViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.navigation.NavHostController
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,98 +41,122 @@ fun WorkoutFormScreen(
         factory = ViewModelProvider.AndroidViewModelFactory(context.applicationContext as Application)
     )
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { navController?.navigateUp() },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "return"
-                )
-            }
-            Text(
-                text = "add sports record",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
-
-        Text("Workout Type", style = MaterialTheme.typography.titleMedium)
-        ExposedDropdownMenuBox(expanded = workoutExpanded, onExpandedChange = { workoutExpanded = !workoutExpanded }) {
-            OutlinedTextField(
-                value = selectedWorkout,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Select Workout") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(workoutExpanded) },
-                modifier = Modifier.menuAnchor()
-            )
-            ExposedDropdownMenu(expanded = workoutExpanded, onDismissRequest = { workoutExpanded = false }) {
-                workoutOptions.forEach {
-                    DropdownMenuItem(
-                        text = { Text(it) },
-                        onClick = {
-                            selectedWorkout = it
-                            workoutExpanded = false
-                        }
-                    )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+    ) {
+        // Top App Bar
+        TopAppBar(
+            title = { Text("Set Workout Goals") },
+            navigationIcon = {
+                IconButton(onClick = { navController?.navigateUp() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Workout Duration", style = MaterialTheme.typography.titleMedium)
-        ExposedDropdownMenuBox(expanded = durationExpanded, onExpandedChange = { durationExpanded = !durationExpanded }) {
-            OutlinedTextField(
-                value = selectedDuration,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Select Duration") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(durationExpanded) },
-                modifier = Modifier.menuAnchor()
-            )
-            ExposedDropdownMenu(expanded = durationExpanded, onDismissRequest = { durationExpanded = false }) {
-                durationOptions.forEach {
-                    DropdownMenuItem(
-                        text = { Text(it) },
-                        onClick = {
-                            selectedDuration = it
-                            durationExpanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Select Date", style = MaterialTheme.typography.titleMedium)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            DropdownSelector(
-                label = "Month",
-                options = months,
-                selectedOption = selectedMonth,
-                onOptionSelected = { selectedMonth = it }
-            )
-            DropdownSelector(
-                label = "Day",
-                options = days,
-                selectedOption = selectedDay,
-                onOptionSelected = { selectedDay = it }
-            )
-        }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ✅ Save Button
+        // Workout Type Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Workout Type", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                ExposedDropdownMenuBox(expanded = workoutExpanded, onExpandedChange = { workoutExpanded = !workoutExpanded }) {
+                    OutlinedTextField(
+                        value = selectedWorkout,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Select Workout") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(workoutExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(expanded = workoutExpanded, onDismissRequest = { workoutExpanded = false }) {
+                        workoutOptions.forEach {
+                            DropdownMenuItem(
+                                text = { Text(it) },
+                                onClick = {
+                                    selectedWorkout = it
+                                    workoutExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Duration Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Workout Duration", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                ExposedDropdownMenuBox(expanded = durationExpanded, onExpandedChange = { durationExpanded = !durationExpanded }) {
+                    OutlinedTextField(
+                        value = selectedDuration,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Select Duration") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(durationExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(expanded = durationExpanded, onDismissRequest = { durationExpanded = false }) {
+                        durationOptions.forEach {
+                            DropdownMenuItem(
+                                text = { Text(it) },
+                                onClick = {
+                                    selectedDuration = it
+                                    durationExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Date Selection Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Select Date", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    DropdownSelector(
+                        label = "Month",
+                        options = months,
+                        selectedOption = selectedMonth,
+                        onOptionSelected = { selectedMonth = it }
+                    )
+                    DropdownSelector(
+                        label = "Day",
+                        options = days,
+                        selectedOption = selectedDay,
+                        onOptionSelected = { selectedDay = it }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Save Button
         Button(
             onClick = {
                 if (selectedWorkout.isNotEmpty() && selectedDuration.isNotEmpty()
@@ -144,9 +169,11 @@ fun WorkoutFormScreen(
                         day = selectedDay.toInt()
                     )
                     viewModel.saveWorkout(entry)
+                    navController?.navigateUp()
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text("Save Workout")
         }
@@ -164,7 +191,10 @@ fun DropdownSelector(
 
     Column(modifier = Modifier.width(150.dp)) {
         Text(label, style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(onClick = { expanded = true }) {
+        OutlinedButton(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp)
+        ) {
             Text(if (selectedOption.isNotEmpty()) selectedOption else "Select $label")
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

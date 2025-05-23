@@ -18,7 +18,9 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import androidx.navigation.NavHostController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.shape.RoundedCornerShape
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutReportScreen(
     navController: NavHostController? = null
@@ -28,13 +30,8 @@ fun WorkoutReportScreen(
     var chartData by remember { mutableStateOf<Map<String, Float>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
-
         val all = AppDatabase.getDatabase(context).workoutDao().getAllWorkouts()
-        
-
         val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
-        
-
         val calendar = java.util.Calendar.getInstance().apply {
             set(java.util.Calendar.YEAR, currentYear)
             set(java.util.Calendar.HOUR_OF_DAY, 0)
@@ -43,128 +40,130 @@ fun WorkoutReportScreen(
             set(java.util.Calendar.MILLISECOND, 0)
         }
 
-
         val currentMonth = calendar.get(java.util.Calendar.MONTH) + 1
         val currentDay = calendar.get(java.util.Calendar.DAY_OF_MONTH)
-
 
         val last7 = all.filter { workout ->
             val workoutMonth = workout.month
             val workoutDay = workout.day
-            
 
             if (workoutMonth == currentMonth) {
                 workoutDay > (currentDay - 7) && workoutDay <= currentDay
-            }
-
-            else if (workoutMonth == currentMonth - 1 || (currentMonth == 1 && workoutMonth == 12)) {
+            } else if (workoutMonth == currentMonth - 1 || (currentMonth == 1 && workoutMonth == 12)) {
                 val daysInLastMonth = calendar.apply { 
                     add(java.util.Calendar.MONTH, -1) 
                 }.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
                 val daysFromLastMonth = 7 - (currentDay)
                 workoutDay > (daysInLastMonth - daysFromLastMonth)
-            }
-            else false
+            } else false
         }
-
 
         val last30 = all.filter { workout ->
             val workoutMonth = workout.month
             val workoutDay = workout.day
-            
 
             if (workoutMonth == currentMonth) {
                 workoutDay > (currentDay - 30) && workoutDay <= currentDay
-            }
-
-            else if (workoutMonth == currentMonth - 1 || (currentMonth == 1 && workoutMonth == 12)) {
+            } else if (workoutMonth == currentMonth - 1 || (currentMonth == 1 && workoutMonth == 12)) {
                 val daysInLastMonth = calendar.apply { 
                     add(java.util.Calendar.MONTH, -1) 
                 }.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
                 val daysFromLastMonth = 30 - currentDay
                 workoutDay > (daysInLastMonth - daysFromLastMonth)
-            }
-            else false
+            } else false
         }
-
-        println("📊 Data counts:")
-        println("Total workouts: ${all.size}")
-        println("Last 7 days: ${last7.size}")
-        println("Last 30 days: ${last30.size}")
 
         recentWorkouts = last7.sortedByDescending { 
             it.month * 100 + it.day
         }
 
         if (last30.isEmpty()) {
-            println("⚠️ Warning: No workout data found for the last 30 days")
             chartData = mapOf()
         } else {
             chartData = last30
                 .groupBy { it.workoutType }
                 .mapValues { entry ->
                     val total = entry.value.sumOf {
-                        val minutes = durationTextToMinutes(it.duration)
-                        println("⏱ Parsed [${it.duration}] → $minutes min for type: ${it.workoutType}")
-                        minutes.toLong()
+                        durationTextToMinutes(it.duration).toLong()
                     }
-                    println("📊 Workout Type: ${entry.key} → Total Minutes: $total")
                     total.toFloat()
                 }
-            println("📊 Generated chart data from last 30 days: $chartData")
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { navController?.navigateUp() },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "return"
-                )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+    ) {
+        // Top App Bar
+        TopAppBar(
+            title = { Text("Workout Report") },
+            navigationIcon = {
+                IconButton(onClick = { navController?.navigateUp() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
             }
-            Text(
-                text = "sports report",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
+        )
 
-        Text("Workout Summary (Last 7 Days)", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        LazyColumn(modifier = Modifier.height(200.dp)) {
-            items(recentWorkouts) { workout ->
-                Text("${workout.workoutType} - ${workout.duration} on ${workout.month}/${workout.day}")
+        // Recent Workouts Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("Recent Workouts (Last 7 Days)", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                if (recentWorkouts.isEmpty()) {
+                    Text(
+                        "No workouts recorded in the last 7 days",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.height(200.dp)
+                    ) {
+                        items(recentWorkouts) { workout ->
+                            Text(
+                                "${workout.workoutType} - ${workout.duration} on ${workout.month}/${workout.day}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Workout Distribution (Last 30 Days)", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        WorkoutPieChart(data = chartData)
+        // Distribution Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("Workout Distribution (Last 30 Days)", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                WorkoutPieChart(data = chartData)
+            }
+        }
     }
 }
 
 @Composable
 fun WorkoutPieChart(data: Map<String, Float>) {
-    println("🥧 Creating PieChart with data: $data")
-
     if (data.isEmpty()) {
         Text(
-            text = "No workout data available for the last 30 days.",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(16.dp)
+            text = "No workout data available for the last 30 days",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(vertical = 8.dp)
         )
         return
     }
@@ -176,7 +175,6 @@ fun WorkoutPieChart(data: Map<String, Float>) {
         factory = { context ->
             PieChart(context).apply {
                 val entries = data.map {
-                    println("📊 Creating PieEntry: value=${it.value}, label=${it.key}")
                     PieEntry(it.value, it.key)
                 }
                 val dataSet = PieDataSet(entries, "Workout Types").apply {

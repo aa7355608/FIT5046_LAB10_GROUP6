@@ -22,11 +22,10 @@ import kotlin.math.sqrt
 @Composable
 fun WorkoutPlanScreen(navController: NavController) {
     Column(modifier = Modifier.padding(24.dp)) {
-        Text("个性化运动计划", style = MaterialTheme.typography.headlineSmall)
+        Text("Personalized Workout Plan", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 三个主要功能卡片
-        // 设置目标卡片
+        // First card: Set your goals
         Card(
             onClick = { navController.navigate("workout_form") },
             shape = RoundedCornerShape(12.dp),
@@ -34,12 +33,12 @@ fun WorkoutPlanScreen(navController: NavController) {
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("设置目标", style = MaterialTheme.typography.titleMedium)
-                Text("点击输入您的健身目标和偏好")
+                Text("Set Your Goals", style = MaterialTheme.typography.titleMedium)
+                Text("Tap to input your fitness goals and preferences")
             }
         }
 
-        // 查看报告卡片
+        // Second card: View weekly report
         Card(
             onClick = { navController.navigate("workout_report") },
             shape = RoundedCornerShape(12.dp),
@@ -47,94 +46,124 @@ fun WorkoutPlanScreen(navController: NavController) {
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("查看周报告", style = MaterialTheme.typography.titleMedium)
-                Text("查看您的运动总结和进度")
+                Text("View Weekly Report", style = MaterialTheme.typography.titleMedium)
+                Text("Check your workout summary and progress")
             }
         }
 
-        // AI推荐卡片
+        // Third card: AI Recommendation
         Card(
             onClick = { navController.navigate("workout_ai") },
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("AI推荐", style = MaterialTheme.typography.titleMedium)
-                Text("根据您的运动时间获取建议")
+                Text("AI Recommendation", style = MaterialTheme.typography.titleMedium)
+                Text("Get suggestions based on your weekly workout time")
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 运动状态检测框
-        @Composable
-        fun WorkoutMotionStatusBox() {
-            val context = LocalContext.current
-            val sensorManager = remember { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
-            val accelerometer = remember { sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
+        WorkoutMotionStatusBox()
+    }
+}
 
-            var status by remember { mutableStateOf("🔄 检测中...") }
-            var lastMagnitude by remember { mutableStateOf(0f) }
-            var message by remember { mutableStateOf("") }
+@Composable
+fun WorkoutMotionStatusBox() {
+    val context = LocalContext.current
+    val sensorManager = remember { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
+    val accelerometer = remember { sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
 
-            val funnyLines = listOf(
-                "连树懒都说你太懒了",
-                "你的能量可以发电！",
-                "动作平稳如度假中的忍者",
-                "跑步机可能会吃醋",
-                "静如雕像...差不多！"
-            )
+    var status by remember { mutableStateOf("🔄 Detecting...") }
+    var lastMagnitude by remember { mutableStateOf(0f) }
+    var message by remember { mutableStateOf("") }
+    var lastUpdateTime by remember { mutableStateOf(0L) }
+    var messageIndex by remember { mutableStateOf(0) }
+    var isStill by remember { mutableStateOf(false) }
 
-            val backgroundColor by animateColorAsState(
-                targetValue = if (status.contains("静止")) MaterialTheme.colorScheme.tertiaryContainer
-                else MaterialTheme.colorScheme.errorContainer,
-                label = "motionColor"
-            )
+    val funnyLinesStill = listOf(
+        "Even a sloth would call this lazy.",
+        "Sometimes stillness is strength.",
+        "You could win a statue contest!",
+        "Taking rest like a champ.",
+        "Channeling your inner rock."
+    )
 
-            DisposableEffect(Unit) {
-                val listener = object : SensorEventListener {
-                    override fun onSensorChanged(event: SensorEvent) {
-                        val x = event.values[0]
-                        val y = event.values[1]
-                        val z = event.values[2]
+    val funnyLinesMoving = listOf(
+        "You're moving like lightning!",
+        "Fueling the world with your energy.",
+        "Momentum never looked better.",
+        "You're on fire! 🔥",
+        "Crushing it, one step at a time."
+    )
 
-                        val current = sqrt(x * x + y * y + z * z)
-                        val delta = abs(current - lastMagnitude)
-                        lastMagnitude = current
+    val backgroundColor by animateColorAsState(
+        targetValue = if (status.contains("Still")) MaterialTheme.colorScheme.tertiaryContainer
+        else MaterialTheme.colorScheme.errorContainer,
+        label = "motionColor"
+    )
 
-                        status = if (delta < 0.5f) "🧘 状态：静止" else "🏃 状态：运动中"
-                        if (status.contains("静止")) {
-                            message = funnyLines.random()
-                        } else {
-                            message = ""
-                        }
+    LaunchedEffect(Unit) {
+        if (isStill) {
+            message = funnyLinesStill.random()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+
+                val current = sqrt(x * x + y * y + z * z)
+                val delta = abs(current - lastMagnitude)
+                lastMagnitude = current
+
+                val currentTime = System.currentTimeMillis()
+                val currentIsStill = delta < 0.5f
+
+                if (currentIsStill != isStill) {
+                    isStill = currentIsStill
+                    status = if (isStill) "🧘 Status: Still" else "🏃 Status: Moving"
+                    message = if (isStill) {
+                        funnyLinesStill.random()
+                    } else {
+                        funnyLinesMoving[messageIndex]
                     }
-
-                    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
                 }
 
-                sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
-                onDispose { sensorManager.unregisterListener(listener) }
+                if (!isStill && currentTime - lastUpdateTime >= 2 * 60 * 60 * 1000) {
+                    messageIndex = (messageIndex + 1) % funnyLinesMoving.size
+                    lastUpdateTime = currentTime
+                    message = funnyLinesMoving[messageIndex]
+                }
             }
 
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = backgroundColor,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp)
-                    .animateContentSize()
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("运动检测", style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(status, style = MaterialTheme.typography.bodyLarge)
-                    if (message.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(message, style = MaterialTheme.typography.bodySmall)
-                    }
-                }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+
+        sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+        onDispose { sensorManager.unregisterListener(listener) }
+    }
+
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = backgroundColor,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp)
+            .animateContentSize()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Motion Detection", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(status, style = MaterialTheme.typography.bodyLarge)
+            if (message.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(message, style = MaterialTheme.typography.bodySmall)
             }
         }
     }
