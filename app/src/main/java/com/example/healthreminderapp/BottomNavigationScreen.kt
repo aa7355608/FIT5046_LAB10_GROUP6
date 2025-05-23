@@ -1,22 +1,27 @@
 package com.example.healthreminderapp
 
+import android.app.Activity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.example.healthreminderapp.workoutplan.WorkoutFormScreen
+import com.example.healthreminderapp.WorkoutAiRecommendationScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomNavigationScreen(
     rootNav: NavHostController,
-    settingsViewModel: ReminderSettingsViewModel // ✅ 注入共享 ViewModel
+    settingsViewModel: ReminderSettingsViewModel
 ) {
     val bottomNav = rememberNavController()
-    var selectedTab by remember { mutableStateOf(3) } // 默认选中 Reminder
+    var selectedTab by remember { mutableStateOf(3) }
+    val context = LocalContext.current
 
     Scaffold(
         bottomBar = {
@@ -68,39 +73,35 @@ fun BottomNavigationScreen(
                 )
             }
         }
-    ) { padding ->
+    ) { innerPadding ->
         NavHost(
             navController = bottomNav,
             startDestination = "dashboard",
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable("dashboard") { HomeDashboardScreen(bottomNav) }
-            composable("log")       { RunningLogScreen() }
-            composable("workout")   { WorkoutPlanScreen() }
-
-
+            composable("log") { RunningLogScreen() }
+            composable("workout") { WorkoutPlanScreen(navController = bottomNav) }
+            composable("workout_form") { WorkoutFormScreen(navController = bottomNav) }
+            composable("workout_report") { WorkoutReportScreen(navController = bottomNav) }
+            composable("workout_ai") { WorkoutAiRecommendationScreen(navController = bottomNav) }
             composable("reminder") {
                 ReminderMainScreen(
                     navController = bottomNav,
                     viewModel = settingsViewModel
                 )
             }
-
             composable("form") {
                 FormScreen(
                     navController = bottomNav,
                     viewModel = settingsViewModel
                 )
             }
-
-            composable("settings") {
-                SettingsScreen(bottomNav)
-            }
-
-
-            composable("meals")        { MealsScreen() }
+            composable("settings") { SettingsScreen(bottomNav) }
+            composable("meals") { MealsScreen() }
             composable("foodRankings") { FoodRankingsScreen() }
-            composable("weightTest")   { WeightTestScreen() }
+            composable("weightTest") { WeightTestScreen() }
         }
     }
 }
+
