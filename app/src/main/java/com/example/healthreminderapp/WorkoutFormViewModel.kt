@@ -5,7 +5,6 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import com.example.healthreminderapp.AppDatabase
 import com.example.healthreminderapp.WorkoutEntry
 
 
