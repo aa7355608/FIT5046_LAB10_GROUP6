@@ -96,6 +96,10 @@ fun FormScreen(
                     )
                 }
 
+                // ✅ Schedule exercise reminder with new time
+                val (hour, minute) = exerciseTime.split(":").map { it.toInt() }
+                scheduleDailyExerciseReminder(context, hour, minute)
+
                 // Back to previous screen
                 navController.popBackStack()
             },

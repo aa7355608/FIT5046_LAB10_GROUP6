@@ -22,7 +22,7 @@ class ReminderSettingsViewModel : ViewModel() {
     private val _delayIfRaining = MutableStateFlow(true)
     val delayIfRaining: StateFlow<Boolean> = _delayIfRaining
 
-    // 更新状态（例如 FormScreen 调用）
+
     fun updateSettings(
         goal: String,
         interval: String,
@@ -35,7 +35,7 @@ class ReminderSettingsViewModel : ViewModel() {
         _delayIfRaining.value = delay
     }
 
-    // 从数据库加载最新设置（MainActivity 中使用）
+
     fun loadLatestFromDatabase(context: Context) {
         viewModelScope.launch {
             val db = AppDatabase.getDatabase(context)

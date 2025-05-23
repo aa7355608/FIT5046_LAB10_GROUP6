@@ -15,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ReminderMainScreen(
@@ -25,6 +27,7 @@ fun ReminderMainScreen(
     val waterInterval by viewModel.waterInterval.collectAsState()
     val exerciseTime by viewModel.exerciseTime.collectAsState()
     val delayIfRaining by viewModel.delayIfRaining.collectAsState()
+    val context = LocalContext.current
 
     Column(modifier = Modifier.padding(24.dp)) {
         Text("Health Reminder System", style = MaterialTheme.typography.headlineSmall)
@@ -59,10 +62,18 @@ fun ReminderMainScreen(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-
+        Button(onClick = {
+            val intent = Intent(context, ExerciseReminderReceiver::class.java)
+            context.sendBroadcast(intent)
+        }) {
+            Text("Test Notification")
+        }
 
     }
 }
+// ✅ 手动触发通知广播（测试用）
+
+
 @Composable
 fun WeatherInfoWithCityList() {
     val cityOptions = mapOf(
