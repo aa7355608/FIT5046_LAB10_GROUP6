@@ -122,4 +122,7 @@ dependencies {
 
     implementation("org.json:json:20230227")
 
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+
 }
