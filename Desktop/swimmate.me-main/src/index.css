@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --brand-cyan:#08c6d1;
+  --brand-cyan-700:#0696a0;
+
+  --busy-green:#22c55e;   /* 充足 */
+  --busy-yellow:#f59e0b;  /* 中等 */
+  --busy-red:#ef4444;     /* 紧张/已满 */
+}
+
+.btn-primary{
+  background:var(--brand-cyan);
+  color:#fff;
+  border:1px solid var(--brand-cyan-700);
+  border-radius:9999px;
+  padding:.5rem .875rem;
+  font-weight:700;
+}
+.btn-primary:hover{ filter:brightness(.95); }
+
+.badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.25rem .625rem;border-radius:9999px;
+  font-size:.75rem;font-weight:700;color:#fff;
+}
+.badge .dot{width:.5rem;height:.5rem;border-radius:9999px;background:#fff;opacity:.9}
+.badge.green{background:var(--busy-green)}
+.badge.yellow{background:var(--busy-yellow)}
+.badge.red{background:var(--busy-red)}
