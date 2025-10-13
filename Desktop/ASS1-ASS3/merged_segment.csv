@@ -1,0 +1,239 @@
+RoadSegmentID,ParkingZone,OnStreet
+20001,7572,Lonsdale Street
+20003,7558,Lonsdale Street
+20005,7569,Lonsdale Street
+20007,7603,Lonsdale Street
+20009,7554,Lonsdale Street
+20011,7562,Lonsdale Street
+20013,7577,Lonsdale Street
+20016,7509,La Trobe Street
+20018,7499,La Trobe Street
+20020,7501,La Trobe Street
+20026,7500,La Trobe Street
+20028,7948,La Trobe Street
+20030,7947,La Trobe Street
+20034,7548,Little Lonsdale Street
+20036,7560,Little Lonsdale Street
+20038,7549,Little Lonsdale Street
+20042,7544,Little Lonsdale Street
+20044,7545,Little Lonsdale Street
+20046,7547,Little Lonsdale Street
+20049,7538,Little Bourke Street
+20051,,
+20053,7510,Little Bourke Street
+20055,7514,Little Bourke Street
+20059,7522,Little Bourke Street
+20063,7517,Little Bourke Street
+20065,7579,Bourke Street
+20067,7643,Spencer Street
+20068,,
+20069,7686,Spencer Street
+20073,7646,Spencer Street
+20075,7642,Spencer Street
+20078,7334,Bourke Street
+20080,7345,Bourke Street
+20084,7332,Bourke Street
+20086,7339,Bourke Street
+20088,7340,Bourke Street
+20090,7335,Bourke Street
+20091,7512,Little Collins Street
+20093,7529,Little Collins Street
+20095,7508,Little Collins Street
+20099,7332,Little Collins Street
+20101,7528,Little Collins Street
+20103,7532,Little Collins Street
+20105,7531,Little Collins Street
+20106,7366,Collins Street
+20108,7358,Collins Street
+20110,7359,Collins Street
+20112,7190,Collins Street
+20116,7355,Collins Street
+20118,7373,Collins Street
+20120,7357,Collins Street
+20121,7428,Flinders Lane
+20123,7412,Flinders Lane
+20125,,
+20127,7450,Flinders Lane
+20129,7415,Flinders Lane
+20131,7458,Flinders Lane
+20133,7455,Flinders Lane
+20135,7425,Flinders Lane
+20137,7418,Flinders Lane
+20139,7402,Exhibition Street
+20140,7399,Exhibition Street
+20141,7411,Exhibition Street
+20142,7411,Exhibition Street
+20144,,
+20145,7406,Exhibition Street
+20146,7631,Russell Street
+20147,7637,Russell Street
+20148,7674,Russell Street
+20149,7638,Russell Street
+20150,7625,Russell Street
+20151,7634,Russell Street
+20152,7639,Russell Street
+20153,7627,Russell Street
+20167,7379,Elizabeth Street
+20170,7598,Queen Street
+20171,7596,Queen Street
+20172,7595,Queen Street
+20173,7607,Queen Street
+20174,7594,Queen Street
+20175,7612,Queen Street
+20176,7610,Queen Street
+20177,7615,Queen Street
+20178,,
+20181,7695,William Street
+20185,7700,William Street
+20188,7479,King Street
+20189,7474,King Street
+20190,7487,King Street
+20191,7486,King Street
+20194,7622,King Street
+20195,7624,King Street
+20196,7648,Spring Street
+20198,7659,Spring Street
+20200,7645,Spring Street
+20206,7647,Spring Street
+20208,7454,Flinders Street
+20210,7446,Flinders Street
+20212,7451,Flinders Street
+20214,,
+20216,7434,Flinders Street
+20224,7433,Flinders Street
+20394,7331,Bond Street
+20416,7350,Church Street
+20431,7377,Downie Street
+20434,,
+20456,7010,Berkeley Street
+20462,7027,Bouverie Street
+20468,7015,Bouverie Street
+20472,7012,Berkeley Street
+20522,7076,Lygon Street
+20573,7053,Kay Street
+20739,,
+20873,7084,Pelham Street
+20889,7244,Albert Street
+20891,7241,Albert Street
+20893,7239,Albert Street
+20896,7260,Lansdowne Street
+20897,7251,Eades Street
+20898,7237,Albert Street
+20931,7721,Cobden Street
+20932,,
+20939,7732,Cobden Street
+20945,7714,Capel Street
+20951,7752,Victoria Street
+20980,7741,Leveson Street
+20990,7748,Queensberry Street
+20992,7733,Errol Street
+20994,7753,Victoria Street
+20998,7722,Curzon Street
+21113,7394,Elizabeth Street
+21115,7393,Elizabeth Street
+21117,7719,Peel Street
+21122,7708,Blackwood Street
+21123,7726,Flemington Road
+21124,7766,Wreckyn Street
+21141,7756,Villiers Street
+21180,7730,Harcourt Street
+21182,7784,Flemington Road
+21384,7993,William Street
+21385,7993,William Street
+21386,,
+21392,7922,Capel Street
+21404,7987,William Street
+21405,7985,Walsh Street
+21483,7930,Dudley Street
+21499,7971,Spencer Street
+21501,7935,Jeffcott Street
+21514,7938,Jeffcott Street
+21518,7939,King Street
+21521,7705,Wills Street
+21523,7604,Queen Street
+21529,7990,William Street
+21553,7265,Nicholson Street
+21554,7266,Nicholson Street
+21557,7089,Pelham Street
+21580,7246,Albert Street
+21596,7297,Victoria Parade
+21609,7580,MacKenzie Street
+21631,7383,Elizabeth Street
+21847,7273,Spring Street
+21848,7672,Spring Street
+21849,7253,Gisborne Street
+21850,7258,Lansdowne Street
+21851,7247,Cathedral Place
+21852,7269,Parliament Place
+21853,7254,Gisborne Street
+21855,7278,St Andrews Place
+21857,7259,Lansdowne Street
+21859,7264,Lansdowne Street
+21860,7250,Clarendon Street
+21863,7270,Powlett Street
+21866,7255,Grey Street
+21867,7271,Simpson Street
+21894,,
+21902,7250,Clarendon Street
+21932,7250,Clarendon Street
+21937,7250,Clarendon Street
+21943,,
+22079,,
+22199,7348,Bromby Street
+22201,7348,Bromby Street
+22202,,
+22203,7348,Bromby Street
+22308,7367,Commercial Road
+22311,7587,Moubray Street
+22439,7195,Docklands Drive
+22445,7219,Siddeley Street
+22448,7202,Harbour Esplanade
+22452,7205,Harbour Esplanade
+22491,7258,Lansdowne Street
+22501,7082,Nicholson Street
+22504,7015,Bouverie Street
+22514,7796,Royal Parade
+22553,7165,Bourke Street
+22618,,
+22619,7236,Albert Street
+22622,7250,Clarendon Street
+22630,7300,Wellington Parade South
+22659,,
+22661,7924,Chetwynd Street
+22686,7727,Flemington Road
+22779,7160,Saint Mangos Lane
+22786,7156,Aquitania Way
+22787,7156,Aquitania Way
+22801,7171,Bourke Street
+22802,7163,Batmans Hill Drive
+22819,7183,Collins Street
+22822,7159,Aurora Lane
+22855,7193,Doepel Way
+22894,7229,Village Street
+22895,7282,Brentani Way
+22896,7200,Georgiana Street
+22898,7194,Enterprize Way
+22899,7161,Aurora Lane
+22913,7178,Bourke Street
+22915,7212,Merchant Street
+22941,7227,Village Street
+22954,7204,Harbour Esplanade
+22956,7185,Collins Street
+23032,7197,Geographe Street
+23033,7214,Navigation Drive
+23062,7207,Import Lane
+23063,7222,Seafarer Lane
+23151,7231,Merchant Street
+23224,7261,Pearl River Road
+23225,7232,Waterfront Way
+23226,7210,Little Docklands Drive
+23246,7208,Karlsruhe Lane
+23252,7191,Docklands Drive
+23267,7226,Saint Mangos Lane North
+23293,7167,Bourke Street
+23308,7184,Collins Street
+23311,7186,Collins Street
+23314,7188,Collins Street
+23342,7182,Adela Lane
+23343,7267,Seafarer Lane
+23378,7188,Collins Street
