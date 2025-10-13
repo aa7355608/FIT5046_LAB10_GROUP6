@@ -23,7 +23,7 @@
         <!-- Controls -->
         <div class="px-4 sm:px-6 mt-6">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <!-- 搜索 -->
+            <!-- Search -->
             <div class="flex items-center gap-3 rounded-2xl border border-slate-400 bg-slate-200 w-full px-5 py-3 shadow-sm">
               <input
                 v-model="kw"
@@ -35,7 +35,7 @@
               <button class="btn-chip-blue" title="Fullscreen" @click="toggleFullscreen">⤢</button>
             </div>
 
-            <!-- 日期 -->
+            <!-- Date -->
             <div class="flex items-center gap-3">
               <label class="text-sm font-semibold text-slate-700">Date</label>
               <input
@@ -55,13 +55,13 @@
           <div class="relative mt-5 mb-6 overflow-hidden rounded-xl border border-slate-300">
             <div ref="mapEl" class="h-[68vh] min-h-[460px] w-full"></div>
 
-            <!-- 右下角按钮 -->
+            <!-- Bottom-right buttons -->
             <div class="absolute right-3 bottom-3 flex gap-2">
               <button class="btn-ui" @click="showDisclaimer = !showDisclaimer">Disclaimer</button>
               <button class="btn-ui" @click="openLegend">View pin legend</button>
             </div>
 
-            <!-- 浮动说明 -->
+            <!-- Floating disclaimer -->
             <div
               v-if="showDisclaimer"
               class="absolute right-3 bottom-16 w-80 rounded-xl border border-slate-200 bg-white/95 p-3 shadow"
@@ -286,7 +286,7 @@ async function fetchRainFor(lat, lng, selectedDateStr){
 
     if (!times.length || !vals.length) throw new Error('hourly_empty')
 
-    // 当天最后一个小时索引（优先 23:00）
+    // Index of last hour of the day (prefer 23:00)
     const tail = [`${selectedDateStr}T23:00`,`${selectedDateStr}T22:00`,`${selectedDateStr}T21:00`]
     let endIdx = -1
     for (const c of tail){ endIdx = times.lastIndexOf(c); if (endIdx !== -1) break }
@@ -300,7 +300,7 @@ async function fetchRainFor(lat, lng, selectedDateStr){
     for (let i=from24;i<=endIdx;i++) sum24 += Number(vals[i])||0
     for (let i=from48;i<=endIdx;i++) sum48 += Number(vals[i])||0
   } catch (e) {
-    // 回退 daily
+    // Fallback to daily
     try {
       const url = new URL('https://api.open-meteo.com/v1/forecast')
       url.searchParams.set('latitude', lat)
@@ -408,10 +408,10 @@ async function drawSites() {
     if (Number.isNaN(lat) || Number.isNaN(lng)) return
 
     const marker = L.circleMarker([lat, lng], {
-      radius: 8, color: '#64748b', weight: 2, fillColor: '#64748b', fillOpacity: 0.65
+      radius: 8, color: '#64748b', weight: 2,       fillColor: '#64748b', fillOpacity: 0.65
     })
 
-    // 缓存环境数据：确保弹窗和 marker 颜色一致
+    // Cache environment data: ensure popup and marker color are consistent
     let envData = null
 
     marker.bindPopup(`
@@ -476,7 +476,7 @@ async function drawSites() {
       `)
     })
 
-    // 预取并着色
+    // Prefetch and color
     ensureEnvAndUpdate().catch(() => {})
 
     layer.addLayer(marker)

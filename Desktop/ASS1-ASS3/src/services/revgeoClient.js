@@ -1,4 +1,4 @@
-// 前端地理编码工具（Nominatim）。带内存缓存 + 强制英文。
+// Frontend geocoding tool (Nominatim). With memory cache + force English.
 const cache = new Map();
 const REV_GEO_LANG = 'en';
 
@@ -6,7 +6,7 @@ function key(...parts) {
   return parts.map(x => String(x)).join('|');
 }
 
-// ---------- 反向地理编码：经纬度 -> 地址 ----------
+// ---------- Reverse geocoding: lat/lng -> address ----------
 export async function reverseGeocodeClient(lat, lng) {
   const k = key('rev', lat.toFixed(5), lng.toFixed(5), REV_GEO_LANG);
   if (cache.has(k)) return cache.get(k);
@@ -27,12 +27,12 @@ export async function reverseGeocodeClient(lat, lng) {
   const j = await res.json();
   const data = { address: j.display_name || '', parts: j.address || {} };
   cache.set(k, data);
-  // 礼貌延时（可去掉）
+  // Polite delay (can be removed)
   await new Promise(r => setTimeout(r, 700));
   return data;
 }
 
-// ---------- 正向地理编码：文本/邮编 -> 坐标 ----------
+// ---------- Forward geocoding: text/postcode -> coordinates ----------
 export async function forwardGeocodeClient(query) {
   const q = String(query || '').trim();
   if (!q) return null;
@@ -47,7 +47,7 @@ export async function forwardGeocodeClient(query) {
     limit: '1',
     addressdetails: '1',
     'accept-language': REV_GEO_LANG,
-    countrycodes: 'au', // 你主要看 Port Phillip Bay，可限定澳洲
+    countrycodes: 'au', // Mainly for Port Phillip Bay, can limit to Australia
   };
   if (isPostcode) params.postalcode = q; else params.q = q;
   url.search = new URLSearchParams(params).toString();

@@ -221,7 +221,7 @@ function onPickImages(e) {
     const url = URL.createObjectURL(f) // preview
     picked.value.push({ id, file: f, url })
   })
-  e.target.value = '' // 允许重复选择同一文件
+  e.target.value = '' // Allow selecting the same file again
 }
 
 function removePicked(i) {
@@ -237,11 +237,11 @@ function clearPicked() {
 /* -------------------- CRUD: posts -------------------- */
 async function postUpdate() {
   if (!canPost.value) return
-  // 将 File 转存为 Blob（IndexedDB 可以直接存 Blob）
+  // Convert File to Blob (IndexedDB can store Blob directly)
   const images = picked.value.map(p => ({
     name: p.file.name,
     type: p.file.type,
-    blob: p.file,          // 直接保存 File/Blob
+    blob: p.file,          // Directly save File/Blob
   }))
 
   const entry = {
@@ -250,7 +250,7 @@ async function postUpdate() {
     user: draft.value.asAlias ? 'Anonymous' : 'You',
     status: draft.value.status,
     text: draft.value.text.trim(),
-    images,               // 保存 Blob；读取时再转为 objectURL
+    images,               // Save Blob; convert to objectURL when reading
     likes: 0, comments: 0, shares: 0,
   }
 
@@ -267,7 +267,7 @@ async function reload() {
   loading.value = true
   try {
     const rows = await dbGetAllPostsDesc()
-    // 为每条记录生成可显示的 objectURL（不修改原始数据）
+    // Generate displayable objectURL for each record (without modifying original data)
     updates.value = rows.map(r => ({
       ...r,
       images: (r.images || []).map(img => ({
@@ -282,12 +282,12 @@ async function reload() {
 
 async function clearAll() {
   await dbClearAll()
-  // 释放之前生成的 objectURL
+  // Release previously generated objectURL
   updates.value.forEach(u => u.images?.forEach(i => i.url && URL.revokeObjectURL(i.url)))
   updates.value = []
 }
 
-/* 回收：离开页面时 revoke objectURL */
+/* Cleanup: revoke objectURL when leaving page */
 onBeforeUnmount(() => {
   clearPicked()
   updates.value.forEach(u => u.images?.forEach(i => i.url && URL.revokeObjectURL(i.url)))

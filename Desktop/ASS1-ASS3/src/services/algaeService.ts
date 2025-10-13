@@ -1,7 +1,7 @@
 // src/services/algaeService.ts
 export type AlgaeLevel = 'Low' | 'Medium' | 'High';
 
-// ① 如果你在 vite 用了代理（见第 3 步），这里留空即可；否则用环境变量指定基地址
+// ① If you use proxy in vite (see step 3), leave blank; otherwise use env variable to specify base URL
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 function normKey(s: any) {
@@ -18,11 +18,11 @@ export async function getAlgaeBySegment(): Promise<Record<string, AlgaeLevel>> {
   const data = await res.json();
   const map: Record<string, AlgaeLevel> = {};
 
-  // 后端已尽量自适应列名；这里将 segment_id / lake_name 归一化为同一个 key
+  // Backend already adapts column names; here we normalize segment_id / lake_name to the same key
   for (const row of data as any[]) {
     const seg = normKey(row.segment_id);
     const lake = normKey(row.lake_name);
-    const key = seg || lake;              // 优先 segment_id，其次 lake_name
+    const key = seg || lake;              // Prefer segment_id, fallback to lake_name
     const lvl = String(row.level || '').trim();
     if (!key) continue;
     if (lvl === 'Low' || lvl === 'Medium' || lvl === 'High') {

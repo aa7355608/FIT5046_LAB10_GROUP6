@@ -1,10 +1,10 @@
 <template>
-  <!-- 访问 '/'（欢迎页）时，只渲染页面本身 -->
+  <!-- When visiting '/' (welcome page), only render the page itself -->
   <RouterView v-if="isWelcome" />
 
-  <!-- 其余页面：保留背景 + 头部 + 内容 + 页脚 -->
+  <!-- Other pages: keep background + header + content + footer -->
   <div v-else class="relative min-h-screen text-slate-900">
-    <!-- 背景层 -->
+    <!-- Background layer -->
     <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       <div
         class="absolute -top-40 -left-32 h-[42rem] w-[42rem] rounded-full

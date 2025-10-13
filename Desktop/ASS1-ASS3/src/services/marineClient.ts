@@ -8,15 +8,15 @@ export type SSTPoint = {
 
 export type SSTSeries = {
   hourly: SSTPoint[];
-  latest?: SSTPoint;     // 最接近现在(或所选日)的一条
-  min?: number;          // 该时间窗最低
-  max?: number;          // 该时间窗最高
-  mean?: number;         // 该时间窗平均
+  latest?: SSTPoint;     // Closest to now (or selected day)
+  min?: number;          // Minimum for this time window
+  max?: number;          // Maximum for this time window
+  mean?: number;         // Mean for this time window
 };
 
 const BASE = 'https://marine-api.open-meteo.com/v1/marine';
 
-// 简单 fetch 包装（自动抛错）
+// Simple fetch wrapper (auto-throw on error)
 async function get(url: string): Promise<any> {
   const res = await fetch(url);
   if (!res.ok) {
@@ -27,12 +27,12 @@ async function get(url: string): Promise<any> {
 }
 
 /**
- * 取某点海温（小时级），时间范围通常设为“选择日期的 00:00~23:59”。
- * @param lat 经度
- * @param lon 纬度
+ * Fetch sea temperature at a point (hourly), time range usually set to "00:00~23:59 of selected date".
+ * @param lat Latitude
+ * @param lon Longitude
  * @param start 'YYYY-MM-DD'
  * @param end   'YYYY-MM-DD'
- * @param tz    例如 'Australia/Sydney' | 'auto'
+ * @param tz    e.g. 'Australia/Sydney' | 'auto'
  */
 export async function fetchSST(
   lat: number,
@@ -61,13 +61,13 @@ export async function fetchSST(
     sst: typeof temp[i] === 'number' ? temp[i] : NaN,
   })).filter(d => Number.isFinite(d.sst));
 
-  // 统计
+  // Statistics
   const vals = hourly.map(d => d.sst);
   const min = vals.length ? Math.min(...vals) : undefined;
   const max = vals.length ? Math.max(...vals) : undefined;
   const mean = vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2) : undefined;
 
-  // 取“最靠近当天中午”的一条作为 latest（更稳定）
+  // Pick the one "closest to noon of the day" as latest (more stable)
   let latest: SSTPoint | undefined;
   if (hourly.length) {
     const target = new Date(`${start}T12:00:00`);
@@ -82,7 +82,7 @@ export async function fetchSST(
   return { hourly, latest, min, max, mean };
 }
 
-/** 批量请求（并发控制可按需加，这里直接 Promise.allSettled） */
+/** Batch requests (can add concurrency control if needed, here using Promise.allSettled directly) */
 export async function fetchSSTBatch(
   pts: { lat: number; lon: number; key: string }[],
   start: string,

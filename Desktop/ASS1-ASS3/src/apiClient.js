@@ -3,14 +3,14 @@ import axios from "axios";
 
 const BASE =
   import.meta.env.VITE_API_BASE?.trim() ||
-  (import.meta.env.DEV ? "http://localhost:3000" : ""); // 生产缺失则留空，后面兜底报错
+  (import.meta.env.DEV ? "http://localhost:3000" : ""); // If missing in production, leave blank and handle error later
 
 const api = axios.create({
   baseURL: BASE,
   timeout: 15000,
 });
 
-// 如果生产环境缺 baseURL，直接给出明确报错，避免去打前端域名返回 HTML
+// If baseURL is missing in production, throw explicit error to avoid hitting frontend domain returning HTML
 api.interceptors.request.use((config) => {
   if (!config.baseURL) {
     throw new Error(
@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 返回的不是 JSON 时，打印关键信息，避免 “Unexpected token '<'”
+// When response is not JSON, log key info to avoid "Unexpected token '<'"
 api.interceptors.response.use(
   (res) => {
     const ct = res.headers?.["content-type"] || "";

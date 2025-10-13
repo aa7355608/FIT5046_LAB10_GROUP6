@@ -18,7 +18,7 @@
       <!-- form -->
       <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <form @submit.prevent="handleSubmit" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- Beach select (固定列表，不连数据库) -->
+          <!-- Beach select (fixed list, not from database) -->
           <div class="col-span-1">
             <label class="block text-sm font-medium text-slate-700 mb-1">Beach</label>
             <select v-model="form.site_name" required
@@ -26,7 +26,7 @@
               <option value="" disabled>Select a beach…</option>
               <option v-for="b in BEACHES_SOURCE" :key="b" :value="b">{{ b }}</option>
             </select>
-            <p class="mt-1 text-xs text-slate-500">从下拉菜单选择海滩名称（数据为前端写死）。</p>
+            <p class="mt-1 text-xs text-slate-500">Select beach name from dropdown (data is hardcoded in frontend).</p>
           </div>
 
           <!-- Condition -->
@@ -146,7 +146,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-/* ---------- 固定海滩名单（写死在前端） ---------- */
+/* ---------- Fixed beach list (hardcoded in frontend) ---------- */
 const BEACHES_SOURCE = [
   'Port Melbourne','Hampton','Half Moon Bay','Mentone','Seaford','Frankston Surf Life Saving Club',
   'Safety Beach','Blairgowrie','Sorrento','The Dell','Eastern Beach','Portsea','Rye','Dromana',
@@ -164,7 +164,7 @@ const submitting = ref(false)
 const username = ref('')
 
 const form = ref({
-  // 不再依赖数据库 site 表，因此不使用 site_id；直接写 report_site_name
+  // No longer depends on database site table, so site_id is not used; directly write report_site_name
   site_name: '',
   condition: '',
   clarity: '',
@@ -230,8 +230,8 @@ async function handleSubmit() {
   submitting.value = true
   try {
     await apiPost('/api/reports', {
-      site_id: null,                     // 不用 site_id，置为 NULL
-      site_name: f.site_name,            // -> report_site_name（来自下拉固定名单）
+      site_id: null,                     // Don't use site_id, set to NULL
+      site_name: f.site_name,            // -> report_site_name (from dropdown fixed list)
       condition: f.condition,            // -> report_condition
       clarity: f.clarity,                // -> report_clarity
       crowd: f.crowd || '',              // -> report_crowd

@@ -8,34 +8,34 @@ const TZ  = 'Australia/Sydney';
 const BASE = 'https://api.open-meteo.com/v1/forecast';
 
 // === Public API used by <RainWeatherView /> ===
-// 支持传入 (dateStr, lat, lon)，否则用默认值
+// Supports passing (dateStr, lat, lon), otherwise use default values
 export async function getConditionsForDate(dateStr, lat = DEFAULT_LAT, lon = DEFAULT_LON) {
   try {
     const day = toISODate(dateStr);
 
-    // 区间日期
+    // Date range
     const pastStart = addDays(day, -2);   // day-2, day-1, day => 72h
     const pastEnd   = day;
     const nextStart = day;
     const nextEnd   = day;
 
-    // === 3 请求并发 ===
+    // === 3 concurrent requests ===
     const [pastDaily, nextHourly, dayHourly] = await Promise.all([
-      // 过去72小时：用 daily rain_sum 求和
+      // Past 72 hours: sum up daily rain_sum
       fetchJson(BASE + '?' + toQS({
         latitude: lat, longitude: lon, timezone: TZ,
         daily: 'rain_sum',
         start_date: pastStart, end_date: pastEnd,
       })),
 
-      // 当天的逐小时降水量（取作未来24小时或该日实际）
+      // Hourly precipitation for the day (taken as next 24 hours or actual for that day)
       fetchJson(BASE + '?' + toQS({
         latitude: lat, longitude: lon, timezone: TZ,
         hourly: 'precipitation',
         start_date: nextStart, end_date: nextEnd,
       })),
 
-      // 当天逐小时天气：用于“今日天气”
+      // Hourly weather for the day: used for "today's weather"
       fetchJson(BASE + '?' + toQS({
         latitude: lat, longitude: lon, timezone: TZ,
         hourly: 'weathercode,temperature_2m,wind_speed_10m',
@@ -43,14 +43,14 @@ export async function getConditionsForDate(dateStr, lat = DEFAULT_LAT, lon = DEF
       })),
     ]);
 
-    // === 过去72小时合计 ===
+    // === Total past 72 hours ===
     const rainPast72 = sum(pastDaily?.daily?.rain_sum) ?? 0;
 
-    // === 当天24小时合计 ===
+    // === Total 24 hours for the day ===
     const nextArr = nextHourly?.hourly?.precipitation ?? [];
     const rainNext24 = round1(sum(nextArr));
 
-    // === 今日天气（选中日期）===
+    // === Today's weather (selected date) ===
     const times = dayHourly?.hourly?.time ?? [];
     const codes = dayHourly?.hourly?.weathercode ?? [];
     const temps = dayHourly?.hourly?.temperature_2m ?? [];

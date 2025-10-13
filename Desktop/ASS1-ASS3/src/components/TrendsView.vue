@@ -3,10 +3,21 @@
   <div class="beach-insights">
     <div class="page-container">
       <header class="page-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5 2.2 5 5 5 5-2.2 5-5"/>
+              <path d="M2 17h20"/>
+            </svg>
+          </div>
+          <div>
         <h1>Beach Water Quality Insights</h1>
+            <p class="header-subtitle">Analyze and compare water quality data across Port Phillip Bay beaches</p>
+          </div>
+        </div>
       </header>
 
-      <!-- 组件内横向菜单（子导航） -->
+      <!-- Horizontal menu within component (sub-navigation) -->
       <nav ref="subnavRef" class="subnav">
         <button
           :class="['subnav-item', activeTab==='single' && 'active']"
@@ -24,13 +35,23 @@
         <button class="subnav-item ghost" @click="scrollToTop">Back to Top ↑</button>
       </nav>
 
-      <!-- 上下堆叠：单沙滩分析 / 沙滩比较 -->
+      <!-- Vertical stack: Single beach analysis / Beach comparison -->
       <section class="stack">
-        <!-- ===== 单沙滩分析 ===== -->
+        <!-- ===== Single Beach Analysis ===== -->
         <div id="single-section" class="card analysis-card" aria-labelledby="single-title">
           <div class="card-header">
+            <div class="card-header-content">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="m19 9-5 5-4-4-3 3"/>
+                </svg>
+              </div>
+              <div>
             <h2 id="single-title">Single Beach Analysis</h2>
-            <p>Pick a beach and time period to render test counts + safe% trend.</p>
+                <p>Detailed water quality trends and test results for individual beaches</p>
+              </div>
+            </div>
           </div>
 
           <!-- Controls -->
@@ -58,15 +79,29 @@
             </div>
           </div>
 
-          <!-- 内容：图表 + 侧栏（在卡片内部加横向滚动外壳 .hscroll） -->
+          <!-- Content: Chart + Sidebar (with horizontal scroll wrapper .hscroll inside card) -->
           <div class="hscroll">
             <div class="content-area">
               <div class="chart-section">
+                <!-- Recommended Beaches Above Chart -->
+                <div id="top-beaches-widget" class="recommended-beaches-section" v-show="topBeachesHtml !== 'Loading recommendations...'">
+                  <div class="rec-section-title">Recommended Beaches</div>
+                  <div id="top-beaches-content" v-html="topBeachesHtml"></div>
+                </div>
+
                 <div class="chart-title" v-show="!!chartTitle">{{ chartTitle }}</div>
                 <div ref="chartContainer" class="chart-container">
                   <div v-if="showWelcome" class="empty-state">
                     <div class="welcome">
-                      <div class="welcome-title">🏊‍♀️ Find Your Perfect Beach</div>
+                      <div class="welcome-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path d="M12 2a9 9 0 1 0 9 9c0-5-4-9-9-9Z"/>
+                          <path d="M12 2v20"/>
+                          <path d="M2 12h20"/>
+                          <path d="M12 12l7-7"/>
+                        </svg>
+                      </div>
+                      <div class="welcome-title">Find Your Perfect Beach</div>
                       <p class="welcome-text">
                         Discover the best swimming spots in Port Phillip Bay with real water quality data.
                         Select a beach above to see detailed analysis.
@@ -116,7 +151,7 @@
                 </div>
               </div>
 
-              <!-- 右侧栏 -->
+              <!-- Right Sidebar -->
               <aside class="sidebar">
                 <div class="insight-box" v-show="beachInfoVisible">
                   <div class="insight-title">Beach Information</div>
@@ -129,24 +164,31 @@
                     </div>
                   </div>
                 </div>
-
-                <div id="top-beaches-widget" class="insight-box">
-                  <div class="insight-title">🏆 Recommended Beaches</div>
-                  <div id="top-beaches-content" v-html="topBeachesHtml"></div>
-                </div>
               </aside>
             </div>
           </div>
         </div>
 
-        <!-- 分割线 -->
+        <!-- Divider -->
         <div class="divider" aria-hidden="true"></div>
 
-        <!-- ===== 沙滩比较 ===== -->
+        <!-- ===== Beach Comparison ===== -->
         <div id="comparison-section" class="card comparison-card" aria-labelledby="comparison-title">
           <div class="card-header">
+            <div class="card-header-content">
+              <div class="card-icon comparison-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <polyline points="5 12 12 5 19 12"/>
+                  <line x1="5" y1="12" x2="5" y2="19"/>
+                  <line x1="19" y1="12" x2="19" y2="19"/>
+                </svg>
+              </div>
+              <div>
             <h2 id="comparison-title">Beach Comparison</h2>
-            <p>Select 2–3 beaches and compare yearly safe percentages.</p>
+                <p>Compare water quality trends across multiple beaches over time</p>
+              </div>
+            </div>
           </div>
 
           <div class="controls-panel sticky-controls">
@@ -185,7 +227,7 @@
             </div>
           </div>
 
-          <!-- 内容（one-col）同样加横向滚动外壳 .hscroll -->
+          <!-- Content (one-col) also with horizontal scroll wrapper .hscroll -->
           <div class="hscroll">
             <div class="content-area one-col">
               <div class="chart-section">
@@ -211,10 +253,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import * as d3 from 'd3'
 
-/** ========= 新增：统一 API 基础路径 ========= */
+/** ========= New: Unified API base path ========= */
 const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
 
 async function apiFetch (path, init) {
@@ -227,7 +269,7 @@ async function apiFetch (path, init) {
   return res.json()
 }
 
-/** ========= 工具：识别真实滚动容器（修复子导航失效） ========= */
+/** ========= Utility: Identify actual scroll container (fix sub-navigation issues) ========= */
 function getScrollParent (element) {
   let el = element?.parentElement
   while (el) {
@@ -249,7 +291,7 @@ function getContainerTop (targetEl, scroller) {
   return currentScrollTop + (targetRect.top - scrollerRect.top)
 }
 
-/** ========= 子导航（横向菜单） ========= */
+/** ========= Sub-navigation (horizontal menu) ========= */
 const subnavRef = ref(null)
 const activeTab = ref('single')
 
@@ -295,7 +337,7 @@ function setupScrollSpy () {
   io.observe(comparison)
 }
 
-/** ========= 共享数据 ========= */
+/** ========= Shared data ========= */
 const beaches = ref([])
 const years = ref([])
 
@@ -309,7 +351,7 @@ onMounted(async () => {
 
 async function checkConnection () {
   try {
-    // 原先是 /api/ping（后端没有该路由），改为已有接口做健康检查
+    // Originally /api/ping (backend doesn't have that route), changed to existing endpoint for health check
     await apiFetch('/api/beaches')
   } catch {}
 }
@@ -328,7 +370,7 @@ function populateYears () {
   years.value = ys
 }
 
-/** ========= 单沙滩分析 ========= */
+/** ========= Single beach analysis ========= */
 const selectedBeachId = ref('')
 const selectedYear = ref('')
 const chartContainer = ref(null)
@@ -341,8 +383,6 @@ const recommendationHtml = ref('Select a beach and analyze to see swimming recom
 const beachInfo = reactive({ name: '', period: '' })
 const metrics = reactive({ totalTests: '-', avgRatingDisplay: '-', safe: 0, relativelySafe: 0, caution: 0, unsafe: 0 })
 const popularBeaches = [99020, 99060, 99070, 99290, 99160]
-let wireTimer = null
-onBeforeUnmount(() => { if (wireTimer) clearTimeout(wireTimer) })
 
 function showLoading (containerRef) {
   if (containerRef?.value) containerRef.value.innerHTML = '<div class="empty-state">Loading...</div>'
@@ -367,54 +407,105 @@ async function loadTopBeachesRecommendations () {
 
     let html = ''
     if (recs.length) {
-      html += '<div class="recs-intro">Based on 2024 water quality data:</div>'
-      recs.forEach((b, i) => {
-        const emoji = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'
-        const ratingColor = parseFloat(b.rating) >= 3.5 ? '#22c55e' : parseFloat(b.rating) >= 3 ? '#3b82f6' : '#f59e0b'
-        html += `
-          <div class="rec-item">
-            <div class="rec-left">
-              <div class="rec-row"><span class="med">${emoji}</span><span class="name">${b.name}</span></div>
-              <div class="muted">${b.safePercent}% safe tests in 2024</div>
+      html += `
+        <div style="margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+              </svg>
             </div>
-            <div class="rec-right">
-              <div class="rating" style="color:${ratingColor}">${b.rating}/4</div>
-              <button class="rec-select-btn" data-beach="${b.name}">Select</button>
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.2;">Top Recommended Beaches</div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Based on 2024 water quality data</div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">`
+      
+      recs.forEach((b, i) => {
+        const rank = i + 1
+        const ratingColor = parseFloat(b.rating) >= 3.5 ? '#10b981' : parseFloat(b.rating) >= 3 ? '#3b82f6' : '#f59e0b'
+        
+        let rankBg = '#f1f5f9'
+        let rankColor = '#64748b'
+        let borderColor = '#e2e8f0'
+        let bgGradient = 'white'
+        let nameColor = '#1e293b'
+        let fontSize = '15px'
+        
+        if (rank === 1) {
+          rankBg = 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+          rankColor = 'white'
+          borderColor = '#fbbf24'
+          bgGradient = 'linear-gradient(135deg, #fffbeb, white)'
+          nameColor = '#92400e'
+          fontSize = '16px'
+        } else if (rank === 2) {
+          rankBg = 'linear-gradient(135deg, #94a3b8, #64748b)'
+          rankColor = 'white'
+          borderColor = '#cbd5e1'
+          bgGradient = 'linear-gradient(135deg, #f8fafc, white)'
+          nameColor = '#334155'
+        } else if (rank === 3) {
+          rankBg = 'linear-gradient(135deg, #fb923c, #f97316)'
+          rankColor = 'white'
+          borderColor = '#fed7aa'
+          bgGradient = 'linear-gradient(135deg, #fff7ed, white)'
+          nameColor = '#78350f'
+        }
+        
+        html += `
+          <div style="display: flex; flex-direction: column; background: ${bgGradient}; border: 2px solid ${borderColor}; border-radius: 14px; padding: 16px; transition: all 0.2s ease; cursor: pointer;" 
+               onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)';" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div style="width: 42px; height: 42px; background: ${rankBg}; color: ${rankColor}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800;">
+                ${rank}
+              </div>
+              <div style="display: flex; align-items: center; gap: 5px; padding: 5px 10px; background: ${ratingColor}15; color: ${ratingColor}; border: 1px solid ${ratingColor}40; border-radius: 8px; font-size: 13px; font-weight: 700;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="${ratingColor}" stroke="none">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span>${b.rating}</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: ${fontSize}; font-weight: 700; color: ${nameColor}; line-height: 1.3; margin-bottom: 8px;">${b.name}</div>
+              <div style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>${b.safePercent}% safe</span>
+              </div>
             </div>
           </div>`
       })
+      
+      html += `
+          </div>
+        </div>`
+      
       if (!beachInfoVisible.value) {
-        html += '<div class="tip">💡 <strong>Tip:</strong> Compare multiple beaches to find the best option for your visit</div>'
+        html += `
+          <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 12px; color: #64748b; margin-top: 12px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" style="flex-shrink: 0;">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4"/>
+              <path d="M12 8h.01"/>
+            </svg>
+            <span style="font-weight: 500;">These beaches have the best water quality ratings based on 2024 test data</span>
+          </div>`
       }
     } else {
-      html = '<div class="muted">Unable to load recommendations at this time.</div>'
+      html = '<div style="text-align: center; color: #64748b; padding: 32px 20px; font-size: 14px; font-weight: 500;">Unable to load recommendations at this time.</div>'
     }
 
     topBeachesHtml.value = html
     await nextTick()
-    wireRecommendationButtons()
   } catch (e) {
     console.error('Failed to load beach recommendations:', e)
     topBeachesHtml.value = '<div class="muted">Unable to load recommendations.</div>'
   }
-}
-
-function wireRecommendationButtons () {
-  if (wireTimer) clearTimeout(wireTimer)
-  wireTimer = setTimeout(() => {
-    const widget = document.getElementById('top-beaches-widget')
-    if (!widget) return
-    widget.querySelectorAll('.rec-select-btn').forEach(btn => {
-      if (!btn.__wired) {
-        btn.__wired = true
-        btn.addEventListener('click', () => {
-          const title = btn.getAttribute('data-beach') || ''
-          const beach = beaches.value.find(b => b.site_name === title)
-          if (beach) { selectedBeachId.value = String(beach.site_id); selectedYear.value = '2024'; analyzeBeach() }
-        })
-      }
-    })
-  }, 0)
 }
 
 async function analyzeBeach () {
@@ -522,24 +613,24 @@ function renderBeachAnalysis (data, beach, year) {
     .on('mouseout', function () { d3.select(this).transition().duration(200).attr('r', 6).attr('stroke-width', 3) })
     .append('title').text(d => `${d.month}: ${d.safePercent}% safe`)
 
-  g.selectAll('.safe-label').data(stackedData).enter().append('text').attr('class', 'safe-label')
-    .attr('x', d => xScale(d.month) + xScale.bandwidth() / 2 + 15).attr('y', d => yScalePercent(d.safePercent)).attr('dy', '0.35em')
-    .style('text-anchor', 'start').style('fill', '#065f46').style('font-size', '13px').style('font-weight', '700').text(d => `${d.safePercent}%`)
-
   const rightAxis = g.append('g').attr('class', 'right-axis-percentage').attr('transform', `translate(${innerWidth},0)`).call(d3.axisRight(yScalePercent).tickFormat(d => d + '%').tickValues([0, 20, 40, 60, 80, 100]))
   rightAxis.selectAll('text').style('fill', '#065f46').style('font-weight', 'bold').style('font-size', '14px')
   rightAxis.selectAll('line').style('stroke', '#10b981').style('stroke-width', '2').style('opacity', '0.8')
   rightAxis.select('.domain').style('stroke', '#10b981').style('stroke-width', '3').style('opacity', '0.9')
   rightAxis.append('text').attr('transform', 'rotate(-90)').attr('y', 65).attr('x', -innerHeight / 2).attr('dy', '1em').style('text-anchor', 'middle').style('fill', '#065f46').style('font-size', '14px').style('font-weight', 'bold').text('Safe Percentage (0-100%)')
 
-  const legend = d3.select(chartContainer.value).append('div').attr('class', 'legend')
+  const legend = d3.select(chartContainer.value).append('div').attr('class', 'chart-legend')
   ;[
     { color: '#10b981', label: 'Safe', type: 'bar' },
     { color: '#f59e0b', label: 'Relatively Safe', type: 'bar' },
     { color: '#f97316', label: 'Caution', type: 'bar' },
     { color: '#ef4444', label: 'Unsafe', type: 'bar' },
-    { color: '#22c55e', label: 'Safe %', type: 'line' }
-  ].forEach(item => { const li = legend.append('div').attr('class', 'legend-item'); li.append('div').attr('class', item.type === 'bar' ? 'legend-bar' : 'legend-marker').style('background-color', item.color); li.append('span').text(item.label) })
+    { color: '#22c55e', label: 'Safe % Trend', type: 'line' }
+  ].forEach(item => { 
+    const li = legend.append('div').attr('class', 'chart-legend-item')
+    li.append('div').attr('class', item.type === 'bar' ? 'legend-bar' : 'legend-line').style('background-color', item.color)
+    li.append('span').text(item.label) 
+  })
 }
 
 function updateBeachInsights (data, beach, year) {
@@ -580,7 +671,7 @@ function updateBeachInsights (data, beach, year) {
   recommendationHtml.value = `${icon} <strong>${status}</strong> ${text}${trendIndicator}`
 }
 
-/** ========= 沙滩比较 ========= */
+/** ========= Beach comparison ========= */
 const comparisonContainer = ref(null)
 const comparisonTitle = ref('')
 const showComparisonEmpty = ref(true)
@@ -637,8 +728,12 @@ function renderBeachComparison (data) {
       .attr('cx', d => xScale(d.year)).attr('cy', d => yScale(+d.goodPercent)).attr('r', 4).attr('fill', color)
   })
 
-  const legend = d3.select(container).append('div').attr('class', 'legend')
-  data.forEach((beach, i) => { const li = legend.append('div').attr('class', 'legend-item'); li.append('div').attr('class', 'legend-marker').style('background-color', palette[i % palette.length]); li.append('span').text(beach.beachName) })
+  const legend = d3.select(container).append('div').attr('class', 'chart-legend')
+  data.forEach((beach, i) => { 
+    const li = legend.append('div').attr('class', 'chart-legend-item')
+    li.append('div').attr('class', 'legend-line').style('background-color', palette[i % palette.length])
+    li.append('span').text(beach.beachName) 
+  })
 }
 
 function updateComparisonInsights (data) {
@@ -690,54 +785,203 @@ function updateComparisonInsights (data) {
 </script>
 
 <style scoped>
-/* 页面框架 */
-.beach-insights { background: #f7fafc; color: #2d3748; min-height: 100vh; }
-.page-container { max-width: 1180px; margin: 24px auto; padding: 0 20px; }
-.page-header { margin-bottom: 12px; }
-.page-header h1 { font-size: 28px; font-weight: 800; color: #1a202c; }
+/* Page framework */
+.beach-insights { 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #2d3748; 
+  min-height: 100vh; 
+  padding: 24px 0;
+}
+.page-container { 
+  max-width: 1180px; 
+  margin: 0 auto; 
+  padding: 0 20px; 
+}
+.page-header { 
+  margin-bottom: 24px; 
+  background: white;
+  padding: 24px 28px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.header-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+.page-header h1 { 
+  font-size: 32px; 
+  font-weight: 800; 
+  color: #1a202c; 
+  margin: 0;
+}
+.header-subtitle {
+  font-size: 15px;
+  color: #64748b;
+  margin: 4px 0 0;
+}
 
-/* 组件内横向菜单（子导航） */
+/* Horizontal menu within component (sub-navigation) */
 .subnav {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; gap: 8px;
-  background: rgba(247,250,252,0.9); backdrop-filter: blur(6px);
-  border: 1px solid #e2e8f0; border-radius: 12px;
-  padding: 8px; margin-bottom: 18px;
-  box-shadow: 0 2px 8px rgba(15,23,42,.05);
+  background: white;
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 10px; 
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 .subnav-item {
-  padding: 8px 14px; border: 1px solid transparent; border-radius: 10px;
-  background: transparent; cursor: pointer; font-weight: 700; color: #334155;
+  padding: 10px 18px; 
+  border: none; 
+  border-radius: 12px;
+  background: transparent; 
+  cursor: pointer; 
+  font-weight: 600; 
+  color: #64748b;
+  transition: all 0.3s ease;
 }
-.subnav-item:hover { background: #eef2ff; }
-.subnav-item.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
-.subnav-item.ghost { font-weight: 600; color: #475569; }
+.subnav-item:hover { 
+  background: #f1f5f9; 
+  color: #1e293b;
+}
+.subnav-item.active { 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff; 
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+.subnav-item.ghost { 
+  font-weight: 500; 
+  color: #94a3b8; 
+}
 .subnav-spacer { flex: 1 1 auto; }
 
-/* 上下堆叠容器 */
+/* Vertical stack container */
 .stack { display: flex; flex-direction: column; gap: 20px; }
 
-/* 卡片与头部 */
-.card { background: #ffffff; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; overflow: hidden; }
-.card-header { padding: 18px 20px; background: linear-gradient(180deg, #f8fafc, #f1f5f9); border-bottom: 1px solid #e2e8f0; }
-.card-header h2 { font-size: 18px; font-weight: 800; color: #1a202c; }
-.card-header p { color: #64748b; margin-top: 4px; }
+/* Card and header */
+.card { 
+  background: #ffffff; 
+  border-radius: 20px; 
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border: none;
+  overflow: hidden; 
+}
+.card-header { 
+  padding: 24px 28px; 
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0; 
+}
+.card-header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.card-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+.card-icon.comparison-icon {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+.card-header h2 { 
+  font-size: 20px; 
+  font-weight: 800; 
+  color: #1a202c; 
+  margin: 0;
+}
+.card-header p { 
+  color: #64748b; 
+  margin: 4px 0 0;
+  font-size: 14px;
+}
 
-/* 分割线 */
-.divider { height: 2px; width: 100%; background: linear-gradient(90deg, #eef2ff, #e2e8f0, #eef2ff); border-radius: 2px; }
+/* Divider */
+.divider { 
+  height: 1px; 
+  width: 100%; 
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  margin: 32px 0;
+}
 
-/* 控件区 */
-.controls-panel { padding: 16px 18px; border-bottom: 1px solid #e2e8f0; background: #fbfdff; }
-.controls-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
-.controls-grid.controls-3 { grid-template-columns: 1fr 1fr 1fr auto; }
-.field-group { display: flex; flex-direction: column; gap: 6px; }
-.field-label { font-size: 13px; font-weight: 700; color: #334155; }
-.field-input { padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; background: #fff; }
-.field-input:focus { outline: none; border-color: #2b6cb0; box-shadow: 0 0 0 3px rgba(43,108,176,.12) }
-.btn-primary { padding: 10px 16px; background: #2b6cb0; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
-.btn-primary:hover { background: #2c5282 }
+/* Controls area */
+.controls-panel { 
+  padding: 24px 28px; 
+  border-bottom: 1px solid #e2e8f0; 
+  background: #ffffff;
+}
+.controls-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr auto; 
+  gap: 16px; 
+  align-items: end; 
+}
+.controls-grid.controls-3 { 
+  grid-template-columns: 1fr 1fr 1fr auto; 
+}
+.field-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+.field-label { 
+  font-size: 13px; 
+  font-weight: 600; 
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-input { 
+  padding: 12px 16px; 
+  border: 2px solid #e2e8f0; 
+  border-radius: 12px; 
+  font-size: 14px; 
+  background: #fff;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+.field-input:focus { 
+  outline: none; 
+  border-color: #667eea; 
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+.btn-primary { 
+  padding: 12px 24px; 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff; 
+  border: none; 
+  border-radius: 12px; 
+  font-weight: 700; 
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+.btn-primary:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
 
-/* 横向滚动外壳：只在内容溢出时出现横向滚动条（在卡片内部） */
+/* Horizontal scroll wrapper: horizontal scrollbar appears only when content overflows (inside card) */
 .hscroll {
   overflow-x: auto;
   overflow-y: visible;
@@ -748,12 +992,21 @@ function updateComparisonInsights (data) {
 .hscroll > .content-area { min-width: 1180px; }
 .hscroll > .content-area.one-col { min-width: 980px; }
 
-/* 内容布局 */
+/* Content layout */
 .content-area { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; padding: 18px; min-height: 520px; }
 .content-area.one-col { grid-template-columns: 1fr; }
-.chart-title { text-align: center; font-weight: 800; color: #1f2937; margin-bottom: 10px; }
+.chart-title { 
+  text-align: center; 
+  font-weight: 800; 
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
 
-/* 图表容器 */
+/* Chart container */
 .chart-container {
   background: linear-gradient(135deg, #ffffff, #f8fafc);
   border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;
@@ -762,57 +1015,304 @@ function updateComparisonInsights (data) {
 }
 .chart-container.soft { background: linear-gradient(135deg, #ffffff, #eef2ff); }
 .chart-container::before { content:''; position:absolute; inset:-2px; border-radius:14px; background: linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6); opacity:.08; z-index:-1; }
-.empty-state { color:#64748b; font-size: 15px; text-align:center; }
-.welcome-title { font-size: 22px; font-weight: 800; color:#1a202c; margin-bottom: 8px; }
-.welcome-text { color:#4b5563 }
+.empty-state { 
+  color: #64748b; 
+  font-size: 15px; 
+  text-align: center; 
+}
+.welcome {
+  max-width: 400px;
+  margin: 0 auto;
+}
+.welcome-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.welcome-title { 
+  font-size: 24px; 
+  font-weight: 800; 
+  color: #1a202c; 
+  margin-bottom: 12px; 
+}
+.welcome-text { 
+  color: #64748b;
+  line-height: 1.6;
+}
 
-/* 摘要与 KPI */
-.summary-wrap { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 16px; }
-.summary { background:#fff; border:1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
-.summary-head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
-.summary-head h3 { margin:0; font-size: 16px; color:#1a202c; font-weight:800 }
-.kpi-row { display:flex; gap: 28px }
-.kpi .kpi-val { font-size: 22px; font-weight: 800; color:#2b6cb0; text-align:center }
-.kpi .kpi-sub { font-size: 11px; color:#64748b; text-transform: uppercase; letter-spacing:.5px; text-align:center }
-.kpi-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px }
-.kpi-pill { display:flex; align-items:center; justify-content:space-between; gap:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; font-size: 13px }
-.kpi-pill .dot { width:10px; height:10px; border-radius: 50% }
-.kpi-pill.green .dot { background:#22c55e }
-.kpi-pill.amber .dot { background:#f59e0b }
-.kpi-pill.orange .dot { background:#f97316 }
-.kpi-pill.red .dot { background:#ef4444 }
+/* Summary and KPI */
+.summary-wrap { 
+  display: grid; 
+  grid-template-columns: 1fr; 
+  gap: 16px; 
+  margin-top: 20px; 
+}
+.summary { 
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 16px; 
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.summary-head { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  margin-bottom: 16px; 
+}
+.summary-head h3 { 
+  margin: 0; 
+  font-size: 18px; 
+  color: #1a202c; 
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.summary-head h3::before {
+  content: '📊';
+  font-size: 20px;
+}
+.kpi-row { 
+  display: flex; 
+  gap: 32px;
+}
+.kpi .kpi-val { 
+  font-size: 28px; 
+  font-weight: 800; 
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+}
+.kpi .kpi-sub { 
+  font-size: 11px; 
+  color: #64748b; 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px; 
+  text-align: center;
+  font-weight: 600;
+}
+.kpi-grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 12px;
+}
+.kpi-pill { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 10px; 
+  background: #f8fafc; 
+  border: 2px solid #e2e8f0; 
+  border-radius: 12px; 
+  padding: 12px 14px; 
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.kpi-pill:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+.kpi-pill .dot { 
+  width: 12px; 
+  height: 12px; 
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.kpi-pill.green .dot { background: #22c55e; }
+.kpi-pill.amber .dot { background: #f59e0b; }
+.kpi-pill.orange .dot { background: #f97316; }
+.kpi-pill.red .dot { background: #ef4444; }
 
-/* 推荐块 */
-.recommend { background: linear-gradient(135deg, #eff6ff, #dbeafe); border:1px solid #3b82f6; border-radius: 12px; padding: 16px; }
-.recommend .bar { width:6px; height:28px; background:#2563eb; border-radius: 3px; margin-bottom: 10px }
-.recommend h3 { margin: 0 0 6px; font-size: 15px; color:#1e40af; font-weight:800 }
-.recommend-text { color:#1e40af; font-weight: 600 }
+/* Recommendation block */
+.recommend { 
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  border: 2px solid #0ea5e9;
+  border-radius: 16px; 
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+}
+.recommend .bar { 
+  width: 6px; 
+  height: 32px; 
+  background: linear-gradient(180deg, #0ea5e9, #06b6d4);
+  border-radius: 3px; 
+  margin-bottom: 12px;
+}
+.recommend h3 { 
+  margin: 0 0 8px; 
+  font-size: 17px; 
+  color: #0c4a6e; 
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.recommend h3::before {
+  content: '💡';
+  font-size: 20px;
+}
+.recommend-text { 
+  color: #0c4a6e; 
+  font-weight: 600;
+  line-height: 1.6;
+}
 
-/* 右侧栏 */
-.sidebar { display:flex; flex-direction:column; gap: 12px; min-width: 380px }
-.insight-box { background:#fff; border:1px solid #e2e8f0; border-radius: 12px; padding: 16px }
-.insight-title { font-weight:800; color:#1a202c; margin-bottom: 8px }
-.insight-body .name { font-weight:800; color:#111827; margin-bottom: 2px }
-.insight-body .meta { color:#6b7280; font-size: 13px; margin-bottom: 8px }
-.insight-body .period { background:#f0f9ff; border:1px solid #0ea5e9; color:#0c4a6e; border-radius:8px; padding:10px }
-.insight-body .period small { display:block; font-weight:800; font-size:11px; margin-bottom: 2px }
+/* Right sidebar */
+.sidebar { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px; 
+  min-width: 380px;
+}
+.insight-box { 
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 16px; 
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+.insight-box:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+.insight-title { 
+  font-weight: 800; 
+  color: #1a202c; 
+  margin-bottom: 12px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.insight-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, #667eea, #764ba2);
+  border-radius: 2px;
+}
+.insight-body .name { 
+  font-weight: 800; 
+  color: #111827; 
+  margin-bottom: 4px;
+  font-size: 18px;
+}
+.insight-body .meta { 
+  color: #6b7280; 
+  font-size: 13px; 
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.insight-body .period { 
+  background: linear-gradient(135deg, #dbeafe, #e0f2fe);
+  border: 2px solid #0ea5e9;
+  color: #0c4a6e;
+  border-radius: 12px;
+  padding: 14px;
+}
+.insight-body .period small { 
+  display: block; 
+  font-weight: 800; 
+  font-size: 11px; 
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
 
-/* 推荐列表 */
-.recs-intro { margin-bottom:10px; font-size:12px; color:#64748b }
-.rec-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; margin-bottom:8px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px }
-.rec-left .rec-row { display:flex; align-items:center; gap:8px; margin-bottom:2px }
-.rec-left .name { font-weight: 700; color:#1a202c; font-size: 14px }
-.rec-left .muted { font-size: 12px; color:#64748b }
-.rec-right { display:flex; flex-direction:column; align-items:center; gap:6px }
-.rec-right .rating { font-weight: 800; font-size: 16px }
-.rec-right .rec-select-btn { font-size: 12px; padding: 6px 12px; background:#2b6cb0; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; min-width:60px }
+/* Recommended Beaches Section (Above Chart) */
+.recommended-beaches-section {
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.recommended-beaches-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 2px;
+  background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.rec-section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0c4a6e;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rec-section-title::before {
+  content: '';
+  width: 6px;
+  height: 24px;
+  background: linear-gradient(180deg, #0ea5e9, #06b6d4);
+  border-radius: 3px;
+}
 
-/* 图例 */
-.legend { display:flex; justify-content:center; gap:20px; margin-top: 10px; flex-wrap: wrap }
-.legend-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#4a5568 }
-.legend-marker { width:16px; height:3px; border-radius:2px }
+/* ===== Beach Recommendations Section - Inline Styled (No CSS Needed) ===== */
+/* All styles are applied inline for guaranteed rendering */
 
-/* 小屏适配（如需强制横向滚动查看，不把内容重排为单列，可注释下面两行） */
+/* Chart Legend - Updated Styling */
+.chart-legend { 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  gap: 20px; 
+  margin-top: 16px; 
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+.chart-legend-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-size: 13px; 
+  font-weight: 600;
+  color: #1e293b;
+}
+.legend-bar { 
+  width: 20px; 
+  height: 12px; 
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.legend-line { 
+  width: 24px; 
+  height: 3px; 
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Small screen adaptation (comment out the following two lines if you want to force horizontal scrolling instead of reflowing content to single column) */
 /*
 @media (max-width: 1024px) {
   .content-area { grid-template-columns: 1fr; }

@@ -187,9 +187,9 @@ import { ref, onMounted } from 'vue'
 import * as L from 'leaflet'
 import { fetchSites } from '@/services/dbApi'
 import { reverseGeocodeClient, forwardGeocodeClient } from '@/services/revgeoClient'
-import lakesUrl from '@/assets/geo/gippsland_lakes.geojson?url'   // <— Vite 会返回可 fetch 的 URL
+import lakesUrl from '@/assets/geo/gippsland_lakes.geojson?url'   // <— Vite will return a fetchable URL
 
-/* ========== 如果需要海温，这里修正了基础域名（避免 404） ========== */
+/* ========== If sea temperature is needed, the base domain has been corrected (to avoid 404) ========== */
 const MARINE_BASE = 'https://marine-api.open-meteo.com/v1/marine'
 
 const kw = ref('')
@@ -211,7 +211,7 @@ L.Marker.prototype.options.icon = DefaultIcon
 
 /* ---------- hazard_rating → status/color ---------- */
 function hazardToStatus(h) {
-  if (h == null || Number.isNaN(+h)) return 'amber'   // 无数据时给中性黄色
+  if (h == null || Number.isNaN(+h)) return 'amber'   // Give neutral amber when no data
   const v = +h
   if (v <= 2) return 'green'
   if (v <= 4) return 'amber'
@@ -253,7 +253,7 @@ function cleanAddress(addr) {
 
 /* ---------- Lakes (GeoJSON) ---------- */
 async function drawLakes(lakeHazardByName = {}) {
-  // 先清掉旧图层
+  // First remove old layer
   if (lakesLayer) { map.removeLayer(lakesLayer); lakesLayer = null }
 
   const res = await fetch(lakesUrl)
@@ -283,19 +283,19 @@ async function drawLakes(lakeHazardByName = {}) {
     }
   }).addTo(map)
 
-  // 如果地图还没定位，则按湖区范围定位一次（避免跑到世界中心）
+  // If map not positioned yet, position once according to lake area (avoid going to world center)
   const b = lakesLayer.getBounds()
   if (b && b.isValid()) {
-    // 不干扰后续 fitBounds；只在初始时用
+    // Don't interfere with subsequent fitBounds; only use initially
     if (!markersLayer) map.fitBounds(b.pad(0.05))
   }
 }
 
 /* ---------- Sites (pins) ---------- */
 async function drawSites() {
-  const rows = await fetchSites() // 期望：site_name, water_body, latitude, longitude, hazard_rating
+  const rows = await fetchSites() // Expected: site_name, water_body, latitude, longitude, hazard_rating
 
-  // 生成 “湖名 → 平均 hazard” 的映射，用来给多边形着色
+  // Generate "lake name → average hazard" mapping, used to color polygons
   const lakeAgg = {}
   const lakeCount = {}
   rows.forEach(r => {
@@ -310,10 +310,10 @@ async function drawSites() {
     lakeHazardByName[k] = lakeAgg[k] / lakeCount[k]
   })
 
-  // 先画湖区（带颜色）
+  // First draw lake area (with color)
   await drawLakes(lakeHazardByName)
 
-  // 再画点
+  // Then draw points
   markersLayer?.clearLayers()
   const layer = L.layerGroup()
   const bounds = L.latLngBounds()
@@ -361,7 +361,7 @@ async function drawSites() {
           </div>
         `)
       } catch {
-        // 保持初始内容
+        // Keep initial content
       }
     })
 
@@ -373,7 +373,7 @@ async function drawSites() {
   layer.addTo(map)
   markersLayer = layer
 
-  // 若湖区没能定位（或你想优先看点），也可以改为以下逻辑
+  // If lake area couldn't be positioned (or you want to prioritize points), can also change to the following logic
   if (bounds.isValid()) map.fitBounds(bounds.pad(0.08))
 }
 
@@ -417,7 +417,7 @@ async function handleSearch() {
   top[0]?.openPopup()
 }
 
-/* ---------- (可选) 海温兜底调用：修正了域名，避免 404 ---------- */
+/* ---------- (Optional) Sea temperature fallback call: domain corrected to avoid 404 ---------- */
 const tempCache = new Map()
 function ymdShift(dateStr, days){
   const t = new Date(dateStr); t.setDate(t.getDate()+days)

@@ -1,14 +1,14 @@
 <template>
   <!-- Full-screen welcome (no header/footer) -->
   <div class="h-screen w-screen overflow-hidden relative text-white">
-    <!-- 背景图 -->
+    <!-- Background image -->
     <img
       src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000&auto=format&fit=crop"
       alt="Sunny beach"
       class="absolute inset-0 h-full w-full object-cover"
     />
 
-    <!-- 半透明渐变遮罩，保证文字对比度 -->
+    <!-- Semi-transparent gradient overlay to ensure text contrast -->
     <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40"></div>
 
     <div class="relative h-full w-full flex items-center justify-center">
@@ -33,7 +33,7 @@
           See how recent rainfall and upcoming weather may affect swimming conditions.
         </p>
 
-        <!-- 说明文字更大 -->
+        <!-- Larger description text -->
         <p class="mt-4 text-lg sm:text-xl text-white/90 leading-relaxed max-w-2xl drop-shadow">
           Real-time water quality, rainfall alerts, and historical safety trends for Port Phillip Bay — all in one place.
         </p>

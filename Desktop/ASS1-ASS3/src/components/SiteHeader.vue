@@ -2,7 +2,7 @@
 <template>
   <header class="bg-[#2A52BE] text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-between">
-      <!-- 左侧：Logo + 品牌 + 导航 -->
+      <!-- Left side: Logo + Brand + Navigation -->
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-3">
           <span class="inline-flex items-center justify-center w-10 h-10 rounded bg-white/10 ring-1 ring-white/20 text-lg">
@@ -11,9 +11,9 @@
           <span class="logo-script">OceanMate</span>
         </div>
 
-        <!-- 桌面导航 -->
+        <!-- Desktop navigation -->
         <nav class="hidden md:flex items-center gap-10 text-sm text-white/85 ml-12">
-          <!-- 每次回到 Welcome -->
+          <!-- Return to Welcome each time -->
           <RouterLink
             to="/"
             class="hover:text-white font-medium"
@@ -38,7 +38,7 @@
             :class="linkClass('/learn')"
           >Learn</RouterLink>
 
-          <!-- 原 'Portal' 改为 Contact Us -->
+          <!-- Original 'Portal' changed to Contact Us -->
           <RouterLink
             to="/contact"
             class="hover:text-white"

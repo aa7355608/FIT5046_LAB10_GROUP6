@@ -6,9 +6,9 @@
   --brand-cyan:#08c6d1;
   --brand-cyan-700:#0696a0;
 
-  --busy-green:#22c55e;   /* 充足 */
-  --busy-yellow:#f59e0b;  /* 中等 */
-  --busy-red:#ef4444;     /* 紧张/已满 */
+  --busy-green:#22c55e;   /* Sufficient */
+  --busy-yellow:#f59e0b;  /* Moderate */
+  --busy-red:#ef4444;     /* Busy/Full */
 }
 
 .btn-primary{
@@ -32,28 +32,28 @@
 .badge.red{background:var(--busy-red)}
 
 /* ====================== */
-/* 🚑 修复导航被遮挡问题   */
+/* 🚑 Fix navigation being covered   */
 /* ====================== */
 
-/* 1. 确保全局导航始终在最上层 
-   ⚠️ 这里请改成你导航组件最外层的实际 className。
-   从截图来看应该是 <header class="site-header"> 或者 SiteHeader.vue 外层 <header>。
-   如果不确定，用 DevTools 查看导航的 class，替换下面的选择器即可。 */
+/* 1. Ensure global navigation is always on top 
+   ⚠️ Please change this to the actual className of your navigation component's outermost layer.
+   From the screenshot, it should be <header class="site-header"> or the outer <header> of SiteHeader.vue.
+   If unsure, use DevTools to check the navigation's class and replace the selector below. */
 .site-header,
 header.site-header,
 header.app-header {
-  position: relative;    /* 如果原本是 fixed/sticky，保持原样 */
-  z-index: 10000;        /* 永远压在所有内容之上 */
-  pointer-events: auto;  /* 确保可点击 */
+  position: relative;    /* If originally fixed/sticky, keep as is */
+  z-index: 10000;        /* Always on top of all content */
+  pointer-events: auto;  /* Ensure clickable */
 }
 
-/* 2. 避免页面中的图表容器/伪元素盖住导航 */
+/* 2. Prevent page chart containers/pseudo-elements from covering navigation */
 .chart-container::before,
 #comparison-container::before {
   pointer-events: none !important;
 }
 
-/* 3. 降低页面内容层级，确保不会“顶到”导航上 */
+/* 3. Lower page content layer level to ensure it doesn't "bump into" navigation */
 .min-h-screen,
 .analysis-card,
 .content-area,

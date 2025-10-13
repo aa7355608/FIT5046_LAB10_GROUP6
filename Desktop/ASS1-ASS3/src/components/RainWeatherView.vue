@@ -130,7 +130,7 @@ const MONTH_NAMES: Record<number, string> = {
   1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June",
   7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December",
 };
-/* 站点 ↔ 湖名 */
+/* Site ↔ Lake name */
 const LAKE_SITE_MAP: Record<string, number> = {
   "Lake Wellington": 2306,
   "Lake Victoria": 2316,
@@ -143,9 +143,9 @@ const SITE_LAKE_MAP: Record<number, string> = Object.fromEntries(
 
 /* ---------------- Core reactive state (DECLARE FIRST!) ---------------- */
 const lakeNames = Object.keys(LAKE_SITE_MAP);
-const activeLake = ref<string>(lakeNames[3]);   // 默认 Lake King South
-const month = ref<number>(4);                   // 默认 4 月
-const year = ref<number>(2025);                 // 默认 2025，CSV 加载后会纠正
+const activeLake = ref<string>(lakeNames[3]);   // Default Lake King South
+const month = ref<number>(4);                   // Default April
+const year = ref<number>(2025);                 // Default 2025, will be corrected after CSV loads
 
 /* ---------------- CSV loading & parsing ---------------- */
 type CsvRow = {
@@ -162,7 +162,7 @@ type CsvRow = {
 
 const rows = ref<CsvRow[]>([]);
 
-/* 简单 CSV 解析（支持引号与 \r\n），返回二维数组 */
+/* Simple CSV parsing (supports quotes and \r\n), returns 2D array */
 function parseCSV(text: string): string[][] {
   const out: string[][] = [];
   let i = 0, field = "", row: string[] = [], inQ = false;
@@ -250,7 +250,7 @@ onMounted(async () => {
     }
     rows.value = list;
 
-    // 默认年份：CSV 最大年份
+    // Default year: maximum year in CSV
     const ys = Array.from(new Set(list.map((r) => r.year))).sort((a, b) => b - a);
     if (ys.length) year.value = ys[0];
   } catch (e) {
@@ -338,7 +338,7 @@ const tableRows = computed(() => {
     let level: Level = normLevel(r.algae);
     let alert = (r.alert ?? "").trim();
     if (!alert) {
-      // 无显式 alert 时，按 level 给个默认标签
+      // When no explicit alert, give default label based on level
       alert = level === "High" ? "Yes" : level === "Moderate" ? "Caution" : "No";
     }
     return {
@@ -388,7 +388,7 @@ function alertTag(a: string) {
 .control { @apply h-9 rounded-md border border-slate-300 bg-white px-2 text-sm; }
 .legend-pill { @apply inline-flex items-center px-2 py-0.5 rounded-full; }
 
-/* Leaflet 图例卡片（左上角） */
+/* Leaflet legend card (top-left corner) */
 .legend-card{
   background: #fff;
   border: 1px solid rgba(15,23,42,0.12);

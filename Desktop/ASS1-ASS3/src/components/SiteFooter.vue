@@ -13,5 +13,5 @@
 </template>
 
 <script setup>
-// 纯展示
+// Pure display
 </script>

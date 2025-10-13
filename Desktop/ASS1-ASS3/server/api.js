@@ -12,11 +12,11 @@ const allowList = (process.env.ALLOWED_ORIGINS || "")
   .map(s => s.trim())
   .filter(Boolean);
 app.use(allowList.length ? cors({ origin: allowList }) : cors());
-app.use(express.json()); // 解析 JSON body
+app.use(express.json()); // Parse JSON body
 
 /* ========== MySQL Pool ========== */
 const DB_NAME = process.env.DB_NAME || "swim";
-// 明细数据表（默认 enterococci；若以后要切表，可在云端配置 ANALYTICS_TABLE=report）
+// Detail data table (default enterococci; to switch tables, configure ANALYTICS_TABLE=report in cloud)
 const ANALYTICS_TABLE = (process.env.ANALYTICS_TABLE || "enterococci").trim();
 const T_ANALYTICS = `\`${DB_NAME}\`.\`${ANALYTICS_TABLE}\``;
 const T_SITE = `\`${DB_NAME}\`.\`site\``;
@@ -32,7 +32,7 @@ const pool = mysql.createPool({
   ssl: process.env.DB_SSL ? { rejectUnauthorized: false } : undefined,
 });
 
-/* ========== 固定站点列表（用于地图聚合） ========== */
+/* ========== Fixed site list (for map aggregation) ========== */
 const SITES_FROM_SPEC = [
   { site_id: 99020, site_name: "Port Melbourne", water_body: "Port Phillip Bay", latitude: "-37.843866", longitude: "144.937766" },
   { site_id: 99060, site_name: "Hampton", water_body: "Port Phillip Bay", latitude: "-37.938000", longitude: "144.997116" },
@@ -105,7 +105,7 @@ app.get("/api/health/db", async (_req, res) => {
   }
 });
 
-/* ========== /api/sites（地图聚合） ========== */
+/* ========== /api/sites (map aggregation) ========== */
 app.get("/api/sites", async (_req, res) => {
   try {
     const siteIds = SITES_FROM_SPEC.map(s => s.site_id);
@@ -156,7 +156,7 @@ app.get("/api/sites", async (_req, res) => {
   }
 });
 
-/* ========== Dashboard APIs（使用 ANALYTICS_TABLE，默认 enterococci） ========== */
+/* ========== Dashboard APIs (using ANALYTICS_TABLE, default enterococci) ========== */
 app.get("/api/beaches", async (_req, res) => {
   try {
     const [rows] = await pool.query(
@@ -188,24 +188,24 @@ app.get("/api/beach-data", async (req, res) => {
     }
     const beachName = beachRows[0].site_name;
 
-    // 注意：你的数据日期是 2013/12/10 这种格式，对应 %Y/%m/%d
+    // Note: your date data is in format 2013-12-10, which corresponds to %Y-%m-%d
     let sql = `
       SELECT 
         enterococci_date,
         enterococci_quality_level,
         enterococci_value,
         enterococci_sample_type,
-        YEAR(STR_TO_DATE(enterococci_date, '%Y/%m/%d')) AS year,
-        MONTH(STR_TO_DATE(enterococci_date, '%Y/%m/%d')) AS month
+        YEAR(STR_TO_DATE(enterococci_date, '%Y-%m-%d')) AS year,
+        MONTH(STR_TO_DATE(enterococci_date, '%Y-%m-%d')) AS month
       FROM ${T_ANALYTICS}
       WHERE enterococci_site_id = ?
     `;
     const params = [beachId];
     if (year && /^\d{4}$/.test(year)) {
-      sql += " AND YEAR(STR_TO_DATE(enterococci_date, '%Y/%m/%d')) = ?";
+      sql += " AND YEAR(STR_TO_DATE(enterococci_date, '%Y-%m-%d')) = ?";
       params.push(year);
     }
-    sql += " ORDER BY STR_TO_DATE(enterococci_date, '%Y/%m/%d') ASC";
+    sql += " ORDER BY STR_TO_DATE(enterococci_date, '%Y-%m-%d') ASC";
 
     const [dataRows] = await pool.query(sql, params);
 
@@ -275,7 +275,7 @@ app.get("/api/beach-comparison", async (req, res) => {
       const [dataRows] = await pool.query(
         `
         SELECT 
-          YEAR(STR_TO_DATE(enterococci_date, '%Y/%m/%d')) AS year,
+          YEAR(STR_TO_DATE(enterococci_date, '%Y-%m-%d')) AS year,
           enterococci_quality_level,
           COUNT(*) AS count
         FROM ${T_ANALYTICS}
@@ -313,19 +313,19 @@ app.get("/api/beach-comparison", async (req, res) => {
   }
 });
 
-/* ========== Algae risk for Gippsland Lakes (新增) ========== */
+/* ========== Algae risk for Gippsland Lakes (newly added) ========== */
 /**
- * 读取表：gipps_lake_quality.gipps_lake_algae
- * 返回：[{ segment_id?: string|number, lake_name?: string, level: 'Low'|'Medium'|'High' }]
- * 说明：自动适配列名（segment_id / lake_name / quality|hazard|risk|alert|level），
- *      需要当前 MySQL 用户对该库有 SELECT 权限
+ * Read table: gipps_lake_quality.gipps_lake_algae
+ * Returns: [{ segment_id?: string|number, lake_name?: string, level: 'Low'|'Medium'|'High' }]
+ * Description: Auto-adapt column names (segment_id / lake_name / quality|hazard|risk|alert|level),
+ *      Requires current MySQL user to have SELECT permission on this database
  */
 function normAlgaeLevel(v) {
   const t = String(v ?? "").trim().toLowerCase();
   if (t.startsWith("low")) return "Low";
   if (t.startsWith("med")) return "Medium";
   if (t.startsWith("high")) return "High";
-  return "Low"; // 兜底给 Low，避免全灰；如需严格可改为 null
+  return "Low"; // Default to Low to avoid all gray; can change to null if strict mode needed
 }
 function pickKey(obj, patterns) {
   const keys = Object.keys(obj || {});
@@ -375,8 +375,8 @@ app.get("/api/algae", async (_req, res) => {
   }
 });
 
-/* ========== Community reports（新增） ========== */
-/** 列表（前端 Recent reports 使用） */
+/* ========== Community reports (newly added) ========== */
+/** List (used by frontend Recent reports) */
 app.get("/api/reports", async (_req, res) => {
   try {
     const [rows] = await pool.query(
@@ -402,36 +402,36 @@ app.get("/api/reports", async (_req, res) => {
   }
 });
 
-/** 新增上报（写入数据库） */
+/** Add new report (write to database) */
 app.post("/api/reports", async (req, res) => {
   try {
     let {
-      site_id = null,   // 可为 null
-      site_name,        // 必填：下拉选择的文本
-      condition,        // 必填：Safe/Caution/Unsafe
-      clarity,          // 必填
-      crowd = "",       // 可空
-      comment           // 必填
+      site_id = null,   // Can be null
+      site_name,        // Required: text from dropdown selection
+      condition,        // Required: Safe/Caution/Unsafe
+      clarity,          // Required
+      crowd = "",       // Optional
+      comment           // Required
     } = req.body || {};
 
     if (!site_name || !condition || !clarity || !comment) {
       return res.status(400).json({ error: "MISSING_FIELDS" });
     }
 
-    // 1) 先尝试从你后端内置的 SITES_FROM_SPEC 里用名称匹配出 site_id
+    // 1) First try to match site_id by name from backend's built-in SITES_FROM_SPEC
     const norm = s => String(s || "").trim().toLowerCase();
     const match = SITES_FROM_SPEC.find(x => norm(x.site_name) === norm(site_name));
 
-    // 2) 计算最终要写入的 site_id：
-    //    - 优先用前端传来的 site_id（如果给了且是数字）
-    //    - 否则用名称匹配到的 site_id
-    //    - 再否则兜底写 0（避免 NOT NULL 约束报错）
+    // 2) Calculate final site_id to write:
+    //    - Prioritize site_id from frontend (if provided and is a number)
+    //    - Otherwise use site_id matched by name
+    //    - Otherwise default to 0 (to avoid NOT NULL constraint error)
     let finalSiteId = 0;
     if (site_id !== null && site_id !== "" && !Number.isNaN(Number(site_id))) {
       finalSiteId = Number(site_id);
     } else if (match) {
       finalSiteId = Number(match.site_id);
-    } // else 保持 0
+    } // else keep as 0
 
     const ts = new Date().toISOString().slice(0, 19).replace("T", " ");
 
@@ -442,7 +442,7 @@ app.post("/api/reports", async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
     const params = [
-      finalSiteId,      // 不再为 null，已兜底为 0
+      finalSiteId,      // No longer null, defaulted to 0
       site_name,
       condition,
       clarity,

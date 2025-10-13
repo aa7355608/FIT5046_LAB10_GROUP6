@@ -1,5 +1,5 @@
 // src/services/beaches.js
-// 坐标为公开可查的海滩/俱乐部标志点的近似位置；可按需微调
+// Coordinates are approximate positions of publicly available beach/club landmark points; can be fine-tuned as needed
 
 export const BEACHES = [
   { key: 'portmelbourne', name: 'Port Melbourne', lat: -37.8380, lon: 144.9430 },

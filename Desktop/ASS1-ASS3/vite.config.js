@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   server: {
-    host: true,       // 需要在局域网访问可保留；仅本机可删掉
+    host: true,       // Keep if need LAN access; can remove if localhost only
     port: 5173,
     proxy: {
       '/api': {
@@ -20,7 +20,7 @@ export default defineConfig({
       },
     },
   },
-  // 预览（vite preview）时也保持同样代理
+  // Keep same proxy during preview (vite preview)
   preview: {
     port: 5173,
     proxy: {
