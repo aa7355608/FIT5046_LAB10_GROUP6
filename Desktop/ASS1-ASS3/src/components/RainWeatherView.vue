@@ -32,12 +32,12 @@
       <div ref="mapEl" class="h-[520px] w-full rounded-xl border border-slate-200 shadow-sm overflow-hidden"></div>
     </section>
 
-    <!-- 第二组图：指标表 + Summary -->
+    <!-- 指标表 + Summary -->
     <section class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mt-8 pb-16">
       <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div class="px-4 sm:px-6 pt-6">
           <h2 class="text-xl sm:text-2xl font-bold">
-            Recreational Water Quality Indicators and Analysis for {{ activeLake }} in {{ MONTH_NAMES[month] }} {{ year }}
+            Recreational Water Quality Indicators and Analysis for {{ activeLake }} in {{ MONTH_NAMES[month] }}
           </h2>
         </div>
 
@@ -55,20 +55,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(r, idx) in tableRows" :key="r.year + '-' + idx" class="border-b last:border-0">
+                <tr v-for="r in tableRows" :key="r.year" class="border-b last:border-0">
                   <td class="px-3 py-2 font-medium">{{ r.year }}</td>
-                  <td class="px-3 py-2">
-                    <span :class="pill(r.ph_category)">{{ r.ph?.toFixed(1) ?? '—' }}</span>
-                  </td>
-                  <td class="px-3 py-2">
-                    <span :class="pill(r.do_category)">{{ r.do_pct?.toFixed(0) ?? '—' }}%</span>
-                  </td>
-                  <td class="px-3 py-2">
-                    <span :class="pill(r.temp_category)">{{ r.temp_c?.toFixed(0) ?? '—' }}°C</span>
-                  </td>
-                  <td class="px-3 py-2">
-                    <span :class="algaeTag(r.level)">{{ r.level ?? 'UNK' }}</span>
-                  </td>
+                  <td class="px-3 py-2"><span :class="pill(r.ph_category)">{{ r.ph ?? '—' }}</span></td>
+                  <td class="px-3 py-2"><span :class="pill(r.do_category)">{{ r.dosat ?? '—' }}</span></td>
+                  <td class="px-3 py-2"><span :class="pill(r.temp_category)">{{ r.temp ?? '—' }}</span></td>
+                  <td class="px-3 py-2"><span :class="algaeTag(r.level)">{{ r.level }}</span></td>
                   <td class="px-3 py-2">
                     <span :class="alertTag(r.alert)">
                       <template v-if="r.alert === 'Yes'">⚠️ Yes</template>
@@ -79,7 +71,7 @@
                 </tr>
                 <tr v-if="!tableRows.length">
                   <td colspan="6" class="px-3 py-6 text-center text-slate-500">
-                    No record for {{ activeLake }} in {{ MONTH_NAMES[month] }} {{ year }}.
+                    No record for {{ activeLake }} in {{ MONTH_NAMES[month] }} (last 5y up to {{ year }}).
                   </td>
                 </tr>
               </tbody>
@@ -96,17 +88,17 @@
         </div>
       </div>
 
-      <!-- Summary（按所选湖泊+月份，统计“最近5年(<=所选年)”的适宜占比） -->
+      <!-- Summary：True / 全部 -->
       <div class="mt-8 flex justify-center">
         <div class="w-full sm:w-[680px] rounded-2xl bg-gradient-to-b from-sky-400 to-sky-600 text-white shadow-lg p-6 text-center">
           <h3 class="text-lg font-semibold tracking-wide">Water Quality Summary</h3>
           <p class="mt-2 text-xl">
-            Overall, {{ activeLake }} in {{ MONTH_NAMES[month] }} (up to {{ year }}) is
+            Overall, {{ activeLake }} in {{ MONTH_NAMES[month] }} {{ year }} is
             <span class="font-extrabold">{{ suitabilityPct.toFixed(0) }}%</span>
             suitable for recreational activities.
           </p>
           <p class="mt-1 text-sm opacity-90">
-            (Low + Moderate / records in the last 5 years for this month & lake, up to selected year.)
+            (qualified=True / all tests for selected lake & month & year)
           </p>
         </div>
       </div>
@@ -119,90 +111,200 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, computed } from "vue";
+/* ---------------- Imports ---------------- */
+import { ref, computed, onMounted, watch } from "vue";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// 用 ?url + fetch 解析本地 GeoJSON（避免 Unexpected token ':'）
 import lakesGeoUrl from "@/assets/geo/gippsland_lakes.geojson?url";
+import csvUrl from "@/assets/data/water_quality.csv?url";
 
-/** 月份名 */
-const MONTH_NAMES: Record<number, string> = {
-  1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",
-  7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"
-};
-
-/** 颜色 & 等级 */
-type Level = "Low"|"Moderate"|"High"|"UNK";
+/* ---------------- Constants ---------------- */
+type Level = "Low" | "Moderate" | "High" | "UNK";
 const COLORS: Record<Level, string> = {
-  Low:"#22c55e", Moderate:"#f59e0b", High:"#ef4444", UNK:"#9ca3af"
+  Low: "#22c55e",
+  Moderate: "#f59e0b",
+  High: "#ef4444",
+  UNK: "#9ca3af",
 };
-
-/** 湖区 ↔ 站点 */
+const MONTH_NAMES: Record<number, string> = {
+  1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June",
+  7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December",
+};
+/* 站点 ↔ 湖名 */
 const LAKE_SITE_MAP: Record<string, number> = {
   "Lake Wellington": 2306,
   "Lake Victoria": 2316,
   "Lake King North": 2314,
-  "Lake King South": 2311
+  "Lake King South": 2311,
 };
+const SITE_LAKE_MAP: Record<number, string> = Object.fromEntries(
+  Object.entries(LAKE_SITE_MAP).map(([k, v]) => [v, k])
+);
+
+/* ---------------- Core reactive state (DECLARE FIRST!) ---------------- */
 const lakeNames = Object.keys(LAKE_SITE_MAP);
-const activeLake = ref<string>(lakeNames[3]); // 默认 Lake King South
-const month = ref<number>(4);                 // 默认 April（可改）
-/** 数据（节选自你提供的数据；可继续补充） */
-type Row = {
-  site_id:number; year:number; month:number;
-  temp_c?:number; do_pct?:number; ph?:number;
-  level?: "Low"|"Moderate"|"High";
-  alert?: "Yes"|"No"|"Caution";
+const activeLake = ref<string>(lakeNames[3]);   // 默认 Lake King South
+const month = ref<number>(4);                   // 默认 4 月
+const year = ref<number>(2025);                 // 默认 2025，CSV 加载后会纠正
+
+/* ---------------- CSV loading & parsing ---------------- */
+type CsvRow = {
+  site_id: number;
+  year: number;
+  month: number;
+  temp?: number | null;
+  dosat?: number | null;
+  ph?: number | null;
+  algae?: string | null;
+  alert?: string | null;
+  qualified: boolean;
 };
-const DATA: Row[] = [
-  // 2311 Lake King South — Dec (示例多年的历史)
-  { site_id:2311, year:2020, month:12, temp_c:20.2003, do_pct:111.48, ph:8.723, level:"Low",       alert:"No" },
-  { site_id:2311, year:2021, month:12, temp_c:20.1044, do_pct:98.63,  ph:8.557, level:"Moderate",  alert:"Caution" },
-  { site_id:2311, year:2022, month:12, temp_c:19.3987, do_pct:103.72, ph:8.069, level:"Low",       alert:"No" },
-  { site_id:2311, year:2023, month:12, temp_c:21.3924, do_pct:95.28,  ph:7.512, level:"Moderate",  alert:"No" },
 
-  // 2306 Lake Wellington — 2024/2–4, 2025/1–2（演示 High/Moderate/Low）
-  { site_id:2306, year:2024, month:2, temp_c:21.0321, do_pct:97.97,  ph:7.858, level:"Moderate", alert:"No" },
-  { site_id:2306, year:2024, month:3, temp_c:18.3697, do_pct:104.06, ph:7.946, level:"High",     alert:"Yes" },
-  { site_id:2306, year:2024, month:4, temp_c:14.4728, do_pct:101.45, ph:8.054, level:"Low",      alert:"No" },
-  { site_id:2306, year:2025, month:1, temp_c:24.2134, do_pct:101.82, ph:8.161, level:"High",     alert:"Yes" },
-  { site_id:2306, year:2025, month:2, temp_c:21.9806, do_pct:109.01, ph:8.119, level:"High",     alert:"Yes" },
+const rows = ref<CsvRow[]>([]);
 
-  // 2316 Lake Victoria — 2024/2–5 低
-  { site_id:2316, year:2024, month:2, temp_c:22.5563, do_pct:134.35, ph:8.45,  level:"Low", alert:"No" },
-  { site_id:2316, year:2024, month:3, temp_c:20.4148, do_pct:113.36, ph:8.02,  level:"Low", alert:"No" },
-  { site_id:2316, year:2024, month:4, temp_c:15.6885, do_pct:99.55,  ph:8.016, level:"Low", alert:"No" },
-  { site_id:2316, year:2024, month:5, temp_c:13.9834, do_pct:110.39, ph:7.672, level:"Low", alert:"No" },
+/* 简单 CSV 解析（支持引号与 \r\n），返回二维数组 */
+function parseCSV(text: string): string[][] {
+  const out: string[][] = [];
+  let i = 0, field = "", row: string[] = [], inQ = false;
+  while (i < text.length) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i += 2; continue; }
+      if (c === '"') { inQ = false; i++; continue; }
+      field += c; i++; continue;
+    } else {
+      if (c === '"') { inQ = true; i++; continue; }
+      if (c === ",") { row.push(field); field = ""; i++; continue; }
+      if (c === "\n" || c === "\r") {
+        if (field.length || row.length) { row.push(field); out.push(row); }
+        field = ""; row = [];
+        if (c === "\r" && text[i + 1] === "\n") i += 2; else i++;
+        continue;
+      }
+      field += c; i++; continue;
+    }
+  }
+  if (field.length || row.length) { row.push(field); out.push(row); }
+  return out.filter(r => r.some(c => c.trim().length));
+}
+const toNum = (s?: string | null) => {
+  if (s == null) return null;
+  const t = s.trim();
+  if (!t) return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+};
+const truthy = (v?: string | null) => {
+  const s = (v ?? "").trim().toLowerCase();
+  return s === "true" || s === "yes" || s === "y" || s === "1" || s === "t";
+};
 
-  // 2314 Lake King North — 2024/2–5 低
-  { site_id:2314, year:2024, month:2, temp_c:21.2436, do_pct:110.83, ph:8.147, level:"Low", alert:"No" },
-  { site_id:2314, year:2024, month:3, temp_c:19.0884, do_pct:103.83, ph:7.85,  level:"Low", alert:"No" },
-  { site_id:2314, year:2024, month:4, temp_c:15.4707, do_pct:97.75,  ph:8.062, level:"Low", alert:"No" },
-  { site_id:2314, year:2024, month:5, temp_c:13.4907, do_pct:103.5,  ph:7.552, level:"Low", alert:"No" },
-];
+onMounted(async () => {
+  // 地图初始化
+  map = L.map(mapEl.value as HTMLDivElement, { zoomControl: true, attributionControl: false })
+    .setView([-38.0, 147.55], 9);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(map);
 
-// 下拉年份（自动从 DATA 汇总）
-const availableYears = computed(()=>{
-  const s = new Set<number>();
-  for(const r of DATA) s.add(r.year);
-  return Array.from(s).sort((a,b)=>b-a); // 倒序，最新在前
+  // GeoJSON
+  const gjResp = await fetch(lakesGeoUrl);
+  const gjData = await gjResp.json();
+  gj = L.geoJSON(gjData, { style: styleFn, onEachFeature: onEach }).addTo(map);
+  map.fitBounds(gj.getBounds(), { padding: [10, 10] });
+  buildLegendControl().addTo(map);
+
+  // CSV
+  try {
+    const t = await (await fetch(csvUrl)).text();
+    const grid = parseCSV(t);
+    const header = grid[0].map((h) => h.trim().toLowerCase());
+
+    const idxSite = header.indexOf("gipps_lake_quality_site");
+    const idxYear = header.indexOf("gipps_lake_quality_year");
+    const idxMon = header.indexOf("gipps_lake_quality_month");
+    const idxTemp = header.indexOf("gipps_lake_quality_temp");
+    const idxDo = header.indexOf("gipps_lake_quality_dosat");
+    const idxPh = header.indexOf("gipps_lake_quality_ph");
+    const idxAlg = header.indexOf("gipps_lake_algae");
+    const idxAlert = header.indexOf("gipps_lake_quality_alert");
+    const idxQual = header.indexOf("gipps_lake_quality_qualified");
+
+    const list: CsvRow[] = [];
+    for (let r = 1; r < grid.length; r++) {
+      const row = grid[r];
+      const site = Number(row[idxSite]);
+      const y = Number(row[idxYear]);
+      const m = Number(row[idxMon]);
+      if (!Number.isFinite(site) || !Number.isFinite(y) || !Number.isFinite(m)) continue;
+
+      list.push({
+        site_id: site,
+        year: y,
+        month: m,
+        temp: toNum(row[idxTemp]),
+        dosat: toNum(row[idxDo]),
+        ph: toNum(row[idxPh]),
+        algae: (row[idxAlg] ?? "").trim() || null,
+        alert: (row[idxAlert] ?? "").trim() || null,
+        qualified: truthy(row[idxQual]),
+      });
+    }
+    rows.value = list;
+
+    // 默认年份：CSV 最大年份
+    const ys = Array.from(new Set(list.map((r) => r.year))).sort((a, b) => b - a);
+    if (ys.length) year.value = ys[0];
+  } catch (e) {
+    console.error("Failed to load water_quality.csv:", e);
+  }
 });
-const year = ref<number>(availableYears.value[0] ?? new Date().getFullYear());
 
-// —— 地图颜色：按“所选 年+月”的记录着色（没有则 UNK）
-function levelFor(lake:string, y:number, m:number):Level{
-  const site = LAKE_SITE_MAP[lake];
-  const row = DATA.find(r=>r.site_id===site && r.year===y && r.month===m);
-  return (row?.level ?? "UNK") as Level;
+/* ---------------- Available years ---------------- */
+const availableYears = computed(() => {
+  const ys = new Set<number>();
+  rows.value.forEach((r) => ys.add(r.year));
+  return Array.from(ys).sort((a, b) => b - a);
+});
+
+/* ---------------- Map (Leaflet) ---------------- */
+const mapEl = ref<HTMLDivElement | null>(null);
+let map: L.Map | undefined;
+let gj: L.GeoJSON | undefined;
+
+const normLevel = (algae?: string | null): Level => {
+  const s = (algae ?? "").trim().toLowerCase();
+  if (s === "low") return "Low";
+  if (s === "medium" || s === "moderate") return "Moderate";
+  if (s === "high") return "High";
+  return "UNK";
+};
+
+function levelFor(lakeName: string, y: number, m: number): Level {
+  const site = LAKE_SITE_MAP[lakeName];
+  const row = rows.value.find((r) => r.site_id === site && r.year === y && r.month === m);
+  return normLevel(row?.algae);
 }
 
-/** —— Leaflet：左上角 Legend Control —— */
-function buildLegendControl(){
+function styleFn(feature: any): L.PathOptions {
+  const name = feature?.properties?.lake_name ?? "UNKNOWN";
+  const lvl = levelFor(name, year.value, month.value);
+  return { color: "#334155", weight: 1, fillOpacity: 0.6, fillColor: COLORS[lvl] };
+}
+function onEach(feature: any, layer: L.Layer) {
+  const name = feature?.properties?.lake_name ?? "UNKNOWN";
+  const lvl = levelFor(name, year.value, month.value);
+  (layer as any).bindTooltip(
+    `<div style="font-weight:600">${name}</div>
+     <div>When: ${MONTH_NAMES[month.value]} ${year.value}</div>
+     <div>Level: <b>${lvl}</b></div>`,
+    { sticky: true }
+  );
+  layer.on("click", () => (activeLake.value = name));
+}
+function buildLegendControl() {
   const Legend = L.Control.extend({
-    options:{ position:"topleft" },
-    onAdd(){
-      const div = L.DomUtil.create("div","leaflet-control legend-card");
+    options: { position: "topleft" },
+    onAdd() {
+      const div = L.DomUtil.create("div", "leaflet-control legend-card");
       div.innerHTML = `
         <div class="legend-title">Algae Levels</div>
         <div class="legend-row"><span class="legend-dot" style="background:${COLORS.Low}"></span>Low</div>
@@ -210,94 +312,74 @@ function buildLegendControl(){
         <div class="legend-row"><span class="legend-dot" style="background:${COLORS.High}"></span>High</div>
       `;
       return div;
-    }
+    },
   });
   return new Legend();
 }
+watch([year, month], () => { if (gj) gj.setStyle(styleFn as any); });
 
-const mapEl = ref<HTMLDivElement|null>(null);
-let map:L.Map|undefined;
-let gj:L.GeoJSON|undefined;
-
-function styleFn(feat:any):L.PathOptions{
-  const name = feat?.properties?.lake_name ?? "UNKNOWN";
-  const lvl = levelFor(name, year.value, month.value);
-  return { color:"#334155", weight:1, fillOpacity:0.6, fillColor: COLORS[lvl] };
-}
-function onEach(feat:any, layer:L.Layer){
-  const name = feat?.properties?.lake_name ?? "UNKNOWN";
-  const lvl = levelFor(name, year.value, month.value);
-  (layer as any).bindTooltip(
-    `<div style="font-weight:600">${name}</div>
-     <div>When: ${MONTH_NAMES[month.value]} ${year.value}</div>
-     <div>Level: <b>${lvl}</b></div>`,
-    { sticky:true }
-  );
-  layer.on("click", ()=>{ activeLake.value = name; });
-}
-
-onMounted(async ()=>{
-  map = L.map(mapEl.value as HTMLDivElement, { zoomControl:true, attributionControl:false })
-        .setView([-38.0,147.55],9);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(map);
-
-  const resp = await fetch(lakesGeoUrl);
-  const geojson = await resp.json();
-  gj = L.geoJSON(geojson, { style:styleFn, onEachFeature:onEach }).addTo(map);
-  map.fitBounds(gj.getBounds(), { padding:[10,10] });
-
-  buildLegendControl().addTo(map);
-});
-
-// 年或月改变 -> 重新上色
-watch([year, month], ()=>{
-  if(gj) gj.setStyle(styleFn as any);
-});
-
-/** —— 第二组图：表格（只显示“所选 年+月”的记录，若无则空） —— */
-const tableRows = computed(()=>{
+/* ---------------- Table rows (last 5y up to selected year) ---------------- */
+const tableRows = computed(() => {
   const site = LAKE_SITE_MAP[activeLake.value];
-  const rows = DATA
-    .filter(r=>r.site_id===site && r.month===month.value && r.year===year.value)
-    .sort((a,b)=>b.year-a.year);
+  const from = year.value - 4;
+  const data = rows.value
+    .filter((r) => r.site_id === site && r.month === month.value && r.year <= year.value && r.year >= from)
+    .sort((a, b) => b.year - a.year);
 
-  return rows.map(r=>{
-    // 简单区间：pH理想 6.5~8.5；DO理想 80~120；温度 10~30（演示用）
-    const ph_category  = r.ph     == null ? "muted" : r.ph < 6.5 ? "below" : r.ph > 8.5 ? "above" : "ok";
-    const do_category  = r.do_pct == null ? "muted" : r.do_pct < 80 ? "below" : r.do_pct > 120 ? "above" : "ok";
-    const temp_category= r.temp_c == null ? "muted" : r.temp_c < 10 ? "below" : r.temp_c > 30 ? "above" : "ok";
-    const alert = r.alert ?? (r.level==="High" ? "Yes" : r.level==="Moderate" ? "Caution" : "No");
-    return { ...r, ph_category, do_category, temp_category, alert };
+  return data.map((r) => {
+    const ph = r.ph != null ? r.ph.toFixed(1) : null;
+    const dosat = r.dosat != null ? Math.round(r.dosat).toString() + "%" : null;
+    const temp = r.temp != null ? Math.round(r.temp).toString() + "°C" : null;
+
+    const phCat = r.ph == null ? "muted" : r.ph < 6.5 ? "below" : r.ph > 8.5 ? "above" : "ok";
+    const doCat = r.dosat == null ? "muted" : r.dosat < 80 ? "below" : r.dosat > 120 ? "above" : "ok";
+    const tCat = r.temp == null ? "muted" : r.temp < 10 ? "below" : r.temp > 30 ? "above" : "ok";
+
+    let level: Level = normLevel(r.algae);
+    let alert = (r.alert ?? "").trim();
+    if (!alert) {
+      // 无显式 alert 时，按 level 给个默认标签
+      alert = level === "High" ? "Yes" : level === "Moderate" ? "Caution" : "No";
+    }
+    return {
+      year: r.year,
+      ph, dosat, temp,
+      ph_category: phCat,
+      do_category: doCat,
+      temp_category: tCat,
+      level,
+      alert,
+    };
   });
 });
 
-/** —— Summary：按所选湖泊+月份，统计“近5年(<=所选年)”的适宜占比（Low/Moderate 记入） —— */
-const suitabilityPct = computed(()=>{
+/* ---------------- Summary (qualified True / total) ---------------- */
+const suitabilityPct = computed(() => {
   const site = LAKE_SITE_MAP[activeLake.value];
-  const from = year.value - 4; // 包含所选年在内，最多5年窗口
-  const sample = DATA
-    .filter(r=>r.site_id===site && r.month===month.value && r.year<=year.value && r.year>=from);
-  if(!sample.length) return 0;
-  const good = sample.filter(r=>r.level==="Low" || r.level==="Moderate").length;
-  return good / sample.length * 100;
+  const data = rows.value.filter((r) => r.site_id === site && r.year === year.value && r.month === month.value);
+  const total = data.length;
+  if (!total) return 0;
+  const ok = data.filter((r) => r.qualified).length;
+  return (ok / total) * 100;
 });
 
-/** —— 表格标签样式工具 —— */
-function pill(cat:"ok"|"below"|"above"|"muted"){
-  if(cat==="ok")    return "inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700";
-  if(cat==="below") return "inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-700";
-  if(cat==="above") return "inline-flex items-center px-2 py-0.5 rounded-full bg-rose-100 text-rose-700";
+/* ---------------- UI helpers ---------------- */
+function pill(cat: "ok" | "below" | "above" | "muted") {
+  if (cat === "ok") return "inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700";
+  if (cat === "below") return "inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-700";
+  if (cat === "above") return "inline-flex items-center px-2 py-0.5 rounded-full bg-rose-100 text-rose-700";
   return "inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-500";
 }
-function algaeTag(level?:Level){
-  if(level==="Low")       return "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700";
-  if(level==="Moderate")  return "inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-700";
-  if(level==="High")      return "inline-flex items-center px-2 py-0.5 rounded-md bg-green-700 text-white";
+function algaeTag(level: Level) {
+  if (level === "Low") return "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700";
+  if (level === "Moderate") return "inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-700";
+  if (level === "High") return "inline-flex items-center px-2 py-0.5 rounded-md bg-green-700 text-white";
   return "inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-500";
 }
-function alertTag(a:"Yes"|"No"|"Caution"){
-  if(a==="Yes")      return "inline-flex items-center px-2 py-0.5 rounded-md bg-rose-100 text-rose-700";
-  if(a==="Caution")  return "inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-700";
+function alertTag(a: string) {
+  const s = (a ?? "").toLowerCase();
+  if (s === "yes") return "inline-flex items-center px-2 py-0.5 rounded-md bg-rose-100 text-rose-700";
+  if (s === "caution") return "inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-700";
   return "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700";
 }
 </script>
@@ -306,9 +388,9 @@ function alertTag(a:"Yes"|"No"|"Caution"){
 .control { @apply h-9 rounded-md border border-slate-300 bg-white px-2 text-sm; }
 .legend-pill { @apply inline-flex items-center px-2 py-0.5 rounded-full; }
 
-/* Leaflet 自定义图例卡片（左上角） */
+/* Leaflet 图例卡片（左上角） */
 .legend-card{
-  background: #ffffff;
+  background: #fff;
   border: 1px solid rgba(15,23,42,0.12);
   border-radius: 12px;
   padding: 10px 12px;
